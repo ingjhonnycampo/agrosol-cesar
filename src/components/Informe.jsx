@@ -55,7 +55,7 @@ function MiniGrafica({ dias }) {
   );
 }
 
-function Hoja({ estacion, diasEst, suelo, consulta, modelo, ap, resultados, proyecto }) {
+function Hoja({ estacion, diasEst, suelo, consulta, modelo, ap, resultados, proyecto, climaInfo }) {
   const hoy = new Date().toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" });
   const dias = diasEst;
   const r = dias.length ? resumenRango(dias) : null;
@@ -95,7 +95,7 @@ function Hoja({ estacion, diasEst, suelo, consulta, modelo, ap, resultados, proy
         <h2>1. Resumen</h2>
         {top.length ? (
           <p>
-            Con los datos de la estación, 25 años de clima de la NASA y el estudio de suelo, para sembrar en <b>{MESES[consulta.mes]}</b> ({consulta.riego ? "con riego" : "solo con lluvia"}) el
+            Con los datos de la estación, {climaInfo ? `${climaInfo.n} años de clima (${climaInfo.periodo})` : "el clima histórico"} y el estudio de suelo, para sembrar en <b>{MESES[consulta.mes]}</b> ({consulta.riego ? "con riego" : "solo con lluvia"}) el
             cultivo mejor puntuado es <b>{top[0].cultivo.emoji} {top[0].cultivo.nombre}</b>
             {top[0].clima.anios ? <> (con agua suficiente en el <b>{Math.round(top[0].clima.exito * 100)} %</b> de los {top[0].clima.anios} años analizados)</> : null}
             , seguido de {top.slice(1, 3).map((x) => x.cultivo.nombre).join(" y ")}.
@@ -103,7 +103,7 @@ function Hoja({ estacion, diasEst, suelo, consulta, modelo, ap, resultados, proy
           </p>
         ) : <p>Aún no se calculó la recomendación: abre la pestaña <b>Rotación</b> para que el modelo consulte el clima.</p>}
         {top.length > 0 && !consulta.riego && top[0].clima.anios > 0 && top[0].clima.exito < 0.3 && (
-          <p className="inf-aviso">⚠️ Sembrando en {MESES[consulta.mes]} y solo con lluvia, ningún cultivo tiene buena probabilidad según el clima de los últimos 25 años. Conviene <b>contar con riego</b> o esperar a <b>{MESES[top[0].mejor.mes]}</b>, el mejor mes para {top[0].cultivo.nombre.toLowerCase()}.</p>
+          <p className="inf-aviso">⚠️ Sembrando en {MESES[consulta.mes]} y solo con lluvia, ningún cultivo tiene buena probabilidad según el clima de {climaInfo?.periodo}. Conviene <b>contar con riego</b> o esperar a <b>{MESES[top[0].mejor.mes]}</b>, el mejor mes para {top[0].cultivo.nombre.toLowerCase()}.</p>
         )}
       </section>
 
@@ -189,7 +189,12 @@ function Hoja({ estacion, diasEst, suelo, consulta, modelo, ap, resultados, proy
         </p>
         <ul className="inf-fuentes">
           {FUENTES.map((f) => <li key={f.id}>{f.texto}{f.url ? <> — <span>{f.url}</span></> : null}{f.nota ? <em> ({f.nota})</em> : null}</li>)}
-          <li>NASA POWER (MERRA-2): clima diario y normales 2001–2025 para el punto de la estación — https://power.larc.nasa.gov</li>
+          <li>
+            Clima usado por el modelo: {climaInfo ? (climaInfo.origen === "archivo" ? `archivo propio "${climaInfo.archivo}"` : "NASA POWER (MERRA-2)") : "NASA POWER (MERRA-2)"}
+            {climaInfo ? `, ${climaInfo.texto}` : ""}, punto {coma(estacion.lat, 4)}° N, {coma(Math.abs(estacion.lon), 4)}° O. Fuente: https://power.larc.nasa.gov
+            {climaInfo?.urlCsv ? <> · mismos datos en CSV: <span>{climaInfo.urlCsv}</span></> : null}
+          </li>
+          <li>Normales mensuales de la NASA (promedio 2001–2025) para comparar con la estación: https://power.larc.nasa.gov</li>
         </ul>
       </section>
 

@@ -187,6 +187,7 @@ export function recomendar({ anterior, mesSiembra, pesos, riego = false, riesgo 
   const ap = aprendizaje;
   const ant = anterior ? cultivoPorId(anterior) : null;
   const ctx = { hist, clima, ap, riego, riesgo };
+  const periodo = hist ? `${hist.inicio.slice(0, 4)}–${hist.fin.slice(0, 4)}` : "";
   const hoy = new Date().getMonth();
 
   return CULTIVOS.filter((c) => c.id !== anterior).map((c) => {
@@ -205,8 +206,8 @@ export function recomendar({ anterior, mesSiembra, pesos, riego = false, riesgo 
       razones.push({
         tipo: cl.exito >= 0.75 ? "bien" : cl.exito >= 0.45 ? "aviso" : "mal",
         texto: riego
-          ? `Con riego, en ${pc} de los ${cl.anios} años (2001–2025) la temperatura habría permitido el cultivo.`
-          : `Sembrado en ${MESES[mesSiembra]}, en ${pc} de los ${cl.anios} años (2001–2025) habría tenido agua suficiente: la lluvia alcanzó y no hubo una racha seca que el cultivo no aguantara.`,
+          ? `Con riego, en ${pc} de los ${cl.anios} años (${periodo}) la temperatura habría permitido el cultivo.`
+          : `Sembrado en ${MESES[mesSiembra]}, en ${pc} de los ${cl.anios} años (${periodo}) habría tenido agua suficiente: la lluvia alcanzó y no hubo una racha seca que el cultivo no aguantara.`,
       });
       if (!riego) {
         razones.push({

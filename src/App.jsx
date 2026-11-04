@@ -16,6 +16,8 @@ import Nasa from "./components/Nasa.jsx";
 import Rotacion, { useRecomendacion } from "./components/Rotacion.jsx";
 import Informe from "./components/Informe.jsx";
 import { useDatosModelo, CONSULTA_INICIAL } from "./lib/useModelo.js";
+import { descripcionPeriodo, urlNasa } from "./lib/climaCsv.js";
+import { ValidarEstacion } from "./components/ValidarNasa.jsx";
 import { cargarProyecto, guardarProyecto } from "./lib/proyecto.js";
 import Cultivos from "./components/Cultivos.jsx";
 import Suelo from "./components/Suelo.jsx";
@@ -140,6 +142,10 @@ export default function App() {
   const dias = useMemo(() => porDia(filasRango), [filasRango]);
   const diasTodos = useMemo(() => (todas ? porDia(todas) : []), [todas]);
   const modelo = useDatosModelo(estacionId, diasTodos[0]?.dia, vista === "rotacion" || vista === "informe");
+  // período del clima histórico de la NASA que usa el modelo, y el enlace a esos mismos datos
+  const climaInfo = modelo.hist
+    ? { ...descripcionPeriodo(modelo.hist), urlCsv: urlNasa(estacion, { parametros: "T2M,T2M_MAX,T2M_MIN,PRECTOTCORR", desde: modelo.hist.inicio, hasta: modelo.hist.fin, formato: "CSV" }) }
+    : null;
   const { ap, resultados } = useRecomendacion({ consulta, modelo, diasEst: diasTodos, suelo, humedadHoy: u?.suelo10 ?? null });
 
   // Frases del astronauta: primero lo que mide la estación, luego datos curiosos
@@ -233,13 +239,13 @@ export default function App() {
             {vista === "graficas" && <Graficas filas={filasRango} />}
             {vista === "dias" && <ResumenDias dias={dias} />}
             {vista === "nasa" && <Nasa estacion={estacion} todas={todas} rango={rango} dias={dias} />}
-            {vista === "rotacion" && <Rotacion estacion={estacion} suelo={suelo} consulta={consulta} onConsulta={setConsulta} modelo={modelo} ap={ap} resultados={resultados} />}
+            {vista === "rotacion" && <Rotacion estacion={estacion} suelo={suelo} consulta={consulta} onConsulta={setConsulta} modelo={modelo} ap={ap} resultados={resultados} climaInfo={climaInfo} />}
             {vista === "cultivos" && <Cultivos />}
-            {vista === "informe" && <Informe estacion={estacion} diasEst={diasTodos} suelo={suelo} consulta={consulta} modelo={modelo} ap={ap} resultados={resultados} proyecto={proyecto} onProyecto={cambiarProyecto} />}
+            {vista === "informe" && <Informe estacion={estacion} diasEst={diasTodos} suelo={suelo} consulta={consulta} modelo={modelo} ap={ap} resultados={resultados} proyecto={proyecto} onProyecto={cambiarProyecto} climaInfo={climaInfo} />}
             {vista === "suelo" && <Suelo suelo={suelo} onCambiar={cambiarSuelo} estacion={estacion} />}
             {vista === "comparar" && <Comparar todas={todas} rango={rango} />}
             {vista === "calendario" && <Calendario dias={dias} rango={rango} />}
-            {vista === "tabla" && <Tabla filas={filasRango} />}
+            {vista === "tabla" && <><ValidarEstacion estacion={estacion} /><Tabla filas={filasRango} /></>}
           </section>
         )}
         <ComoFunciona />

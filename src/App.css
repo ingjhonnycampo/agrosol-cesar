@@ -565,3 +565,8 @@ footer { text-align: center; color: var(--mut); font-size: .85rem; padding: 24px
 .calsiembra-tabla td.mejor button { outline: 3px solid #1d2a1f; outline-offset: -3px; }
 .calsiembra-tabla td.elegido button { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--verde); }
 .calsiembra-detalle { background: var(--card); border: 1px solid var(--borde); border-left: 5px solid var(--verde); border-radius: 12px; padding: 10px 14px; margin-top: 8px; line-height: 1.4; }
+
+/* ---------- Enlaces para validar los datos en la fuente ---------- */
+.validar { margin: 6px 0 14px; padding: 8px 12px; background: #fff4e8; border: 1px solid #f3d3b0; border-radius: 12px; font-size: .9rem; line-height: 1.45; }
+.validar a { color: #9a3f0b; font-weight: 800; }
+.validar-detalle { color: var(--mut); font-size: .82rem; }

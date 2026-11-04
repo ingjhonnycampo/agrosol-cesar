@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Grafica from "./Grafica.jsx";
+import ValidarNasa from "./ValidarNasa.jsx";
 import { coma, fechaCorta, hoyLocal, porDia } from "../lib/analisis.js";
 
 const MES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
@@ -144,7 +145,7 @@ export default function Nasa({ estacion, todas, rango, dias }) {
   return (
     <div>
       <div className="nasa-intro">
-        <b>🛰️ NASA POWER</b> entrega clima y humedad del suelo para el punto de la estación
+        <b>🛰️ <a href="https://power.larc.nasa.gov/" target="_blank" rel="noreferrer">NASA POWER</a></b> (modelo MERRA-2; <a href="https://power.larc.nasa.gov/data-access-viewer/" target="_blank" rel="noreferrer">visor de datos</a>) entrega clima y humedad del suelo para el punto de la estación
         ({coma(nasa?.lat ?? estacion.lat, 3)}, {coma(nasa?.lon ?? estacion.lon, 3)}). Es un dato de una celda de unos 50 km, no de tu terreno exacto:
         sirve como contexto regional. Las líneas <b style={{ color: NASA }}>naranjas punteadas</b> son de la NASA.
         {nasa?.altitudCelda != null && <> Altitud de la celda: {Math.round(nasa.altitudCelda)} m.</>}
@@ -157,20 +158,25 @@ export default function Nasa({ estacion, todas, rango, dias }) {
         <>
           <div className="titulo-seccion"><h2>Este mes frente a lo normal</h2><p>{MES[mesActual - 1]}, promedio 2001–2025</p></div>
           <ComparacionesMes nasa={nasa} todas={todas} />
+          <ValidarNasa estacion={estacion} parametros="T2M,PRECTOTCORR,GWETTOP" climatologia titulo="Validar los promedios (lo normal del mes)" />
 
           <div className="titulo-seccion"><h2>Humedad del suelo</h2><p>Estación frente a NASA (GWETTOP y GWETROOT)</p></div>
           <p className="ayuda">La estación mide un punto, la NASA promedia una celda. No tienen que ser iguales, pero deberían subir y bajar juntas cuando llueve.</p>
           <Grafica option={opHumedad} alto={320} />
+          <ValidarNasa estacion={estacion} parametros="GWETTOP,GWETROOT" desde={nasa.desde} hasta={nasa.hasta} titulo="Validar la humedad del suelo de la NASA" />
 
           <div className="titulo-seccion"><h2>Lluvia diaria</h2><p>Pluviómetro frente a satélite</p></div>
           <Grafica option={opLluvia} alto={280} />
+          <ValidarNasa estacion={estacion} parametros="PRECTOTCORR" desde={nasa.desde} hasta={nasa.hasta} titulo="Validar la lluvia de la NASA" />
 
           <div className="titulo-seccion"><h2>Temperatura</h2><p>Máximas y mínimas del día</p></div>
           <Grafica option={opTemp} alto={300} />
+          <ValidarNasa estacion={estacion} parametros="T2M,T2M_MAX,T2M_MIN" desde={nasa.desde} hasta={nasa.hasta} titulo="Validar la temperatura de la NASA" />
 
           <div className="titulo-seccion"><h2>El clima de Bosconia en el año</h2><p>Promedio de 25 años (NASA)</p></div>
           <p className="ayuda">El mes actual está resaltado. Sirve para saber cuándo es época de lluvias y cuándo es seca al elegir cultivos.</p>
           <Grafica option={opClima} alto={300} />
+          <ValidarNasa estacion={estacion} parametros="T2M,PRECTOTCORR,GWETTOP,GWETROOT" climatologia titulo="Validar el clima normal del año" />
 
           <p className="calidad">
             Fuente: NASA POWER (MERRA-2 / satélites). La NASA publica los datos diarios con unos días de retraso, por eso los últimos días del rango pueden salir vacíos.

@@ -4,6 +4,7 @@ import { MESES, PRIORIDADES, RIESGOS, calendarioSiembra, climaDesdeNasa, recomen
 import { aprenderDeLaEstacion } from "../lib/local.js";
 import { hayEstudio } from "../lib/suelo.js";
 import Fuentes from "./Fuentes.jsx";
+import ValidarNasa from "./ValidarNasa.jsx";
 
 const MEDALLAS = ["🥇", "🥈", "🥉"];
 const ICONO_RAZON = { bien: "✅", aviso: "⚠️", mal: "⛔", info: "ℹ️" };
@@ -28,7 +29,7 @@ export function useRecomendacion({ consulta, modelo, diasEst, suelo, humedadHoy 
 
 // ¿Qué sembrar? Modelo que combina: 25 años de clima de la NASA (año por año), lo que la estación aprendió
 // de este lote, el cultivo anterior, el estudio de suelo y lo que le importa al agricultor.
-export default function Rotacion({ estacion, suelo, consulta, onConsulta, modelo, ap, resultados }) {
+export default function Rotacion({ estacion, suelo, consulta, onConsulta, modelo, ap, resultados, climaInfo }) {
   const [verTodos, setVerTodos] = useState(false);
   const cambiar = (parte) => onConsulta({ ...consulta, ...parte });
   const conSuelo = hayEstudio(suelo);
@@ -37,11 +38,12 @@ export default function Rotacion({ estacion, suelo, consulta, onConsulta, modelo
   return (
     <div>
       <div className="nasa-intro">
-        <b>🌱 ¿Qué sembrar?</b> El modelo simula, <b>año por año desde 2001</b>, qué habría pasado si sembraras cada cultivo en el mes que elijas, y lo
+        <b>🌱 ¿Qué sembrar?</b> El modelo simula, <b>año por año{climaInfo ? ` (${climaInfo.periodo})` : ""}</b>, qué habría pasado si sembraras cada cultivo en el mes que elijas, y lo
         ajusta con los datos de <b>tu estación</b>, el cultivo anterior, el estudio de suelo y lo que te importa.
         <b> Es una guía educativa:</b> confírmala con un agrónomo o la UMATA. Cuando termines, la pestaña <b>Informe</b> la convierte en un documento.
       </div>
 
+      <ValidarNasa estacion={estacion} parametros="T2M,T2M_MAX,T2M_MIN,PRECTOTCORR" desde={modelo.hist?.inicio} hasta={modelo.hist?.fin} titulo="Clima histórico que usa el modelo" />
       <Aprendizaje ap={ap} estacion={estacion} />
 
       <div className="rot-form">
@@ -88,7 +90,7 @@ export default function Rotacion({ estacion, suelo, consulta, onConsulta, modelo
         </p>
       </div>
 
-      {!modelo.hist && !modelo.error && <div className="cargando">Consultando 25 años de clima de la NASA…</div>}
+      {!modelo.hist && !modelo.error && <div className="cargando">Consultando el clima histórico de la NASA…</div>}
       {modelo.error && <div className="aviso">No se pudo traer el clima de la NASA: {modelo.error}</div>}
 
       {resultados.length > 0 && (
@@ -96,7 +98,7 @@ export default function Rotacion({ estacion, suelo, consulta, onConsulta, modelo
           <div className="titulo-seccion"><h2>Lo que más conviene sembrar</h2><p>Siembra en {MESES[mes]} · {riego ? "con riego" : "solo lluvia"}</p></div>
           {!riego && resultados[0].clima.anios > 0 && resultados[0].clima.exito < 0.3 && (
             <div className="rot-alerta">
-              ⚠️ <b>En {MESES[mes]} y solo con lluvia, ningún cultivo tiene buena probabilidad</b> (el mejor llega a {Math.round(resultados[0].clima.exito * 100)} %).
+              ⚠️ <b>En {MESES[mes]} y solo con lluvia, ningún cultivo tiene buena probabilidad</b> según el clima de {climaInfo?.periodo} (el mejor llega a {Math.round(resultados[0].clima.exito * 100)} %).
               Las opciones de abajo son simplemente las menos malas. Conviene <b>contar con riego</b> o esperar a <b>{MESES[resultados[0].mejor.mes]}</b>,
               el mejor mes para {resultados[0].cultivo.nombre.toLowerCase()}. Mira el calendario de siembra al final.
             </div>
