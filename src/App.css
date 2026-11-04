@@ -394,7 +394,7 @@ footer { text-align: center; color: var(--mut); font-size: .85rem; padding: 24px
 .intro-barra button { font: inherit; font-weight: 800; font-size: .9rem; color: #fff; cursor: pointer; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.4); border-radius: 999px; padding: 5px 14px; }
 .intro-barra button:hover { background: rgba(255,255,255,.28); }
 .intro-centro { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; text-align: center; margin-top: 2vh; padding: 0 12px; }
-.intro-cuenta { position: relative; width: clamp(120px, 24vh, 190px); aspect-ratio: 1; display: grid; place-items: center; animation: late 1s ease-out; }
+.intro-cuenta { position: relative; width: clamp(110px, 18vh, 170px); aspect-ratio: 1; display: grid; place-items: center; animation: late 1s ease-out; }
 .intro-cuenta svg { position: absolute; inset: 0; transform: rotate(-90deg); }
 .intro-cuenta circle { fill: none; stroke-width: 7; }
 .anillo-fondo { stroke: rgba(255,255,255,.18); }

@@ -56,7 +56,7 @@ export default function Intro({ listo, onTerminar }) {
   useEffect(() => {
     if (fase !== "despegue") return;
     const a = setTimeout(() => setSale(true), 1300);
-    const b = setTimeout(onTerminar, 2200);
+    const b = setTimeout(() => onTerminar(), 2200);
     return () => { clearTimeout(a); clearTimeout(b); };
   }, [fase, onTerminar]);
 
@@ -118,7 +118,8 @@ export default function Intro({ listo, onTerminar }) {
         <span>🌱 AgroSol Cesar · Galactic Devs</span>
         <span className="intro-botones">
           <button type="button" onClick={alternarSonido} aria-pressed={sonido}>{sonido ? "🔊" : "🔇"} Sonido</button>
-          <button type="button" onClick={onTerminar}>Saltar ▸</button>
+          <button type="button" onClick={(e) => { e.stopPropagation(); onTerminar({ feria: true }); }}>📺 Modo feria</button>
+          <button type="button" onClick={() => onTerminar()}>Saltar ▸</button>
         </span>
       </div>
 

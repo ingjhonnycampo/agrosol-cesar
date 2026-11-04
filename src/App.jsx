@@ -56,19 +56,22 @@ export default function App() {
   const [vista, setVista] = useState("ahora");
   const [preset, setPreset] = useState("7d");
   const [custom, setCustom] = useState(null);
-  // La cuenta regresiva del cohete se ve una vez por visita. ?intro la fuerza; ?feria o ?sinintro la saltan.
+  // La cuenta regresiva del cohete sale cada vez que se abre la dirección. ?sinintro o ?feria la saltan.
   const [intro, setIntro] = useState(() => {
     const q = new URLSearchParams(window.location.search);
-    if (q.has("intro")) return true;
     if (q.has("feria") || q.has("sinintro")) return false;
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return false;
-    try { return !sessionStorage.getItem("agrosol-intro"); } catch { return true; }
+    return !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
   });
-  const terminarIntro = useCallback(() => {
-    try { sessionStorage.setItem("agrosol-intro", "1"); } catch { /* sin almacenamiento, no pasa nada */ }
-    setIntro(false);
-  }, []);
   const [feria, setFeria] = useState(() => new URLSearchParams(window.location.search).has("feria"));
+  const abrirFeria = useCallback(() => {
+    setFeria(true);
+    try { document.documentElement.requestFullscreen?.(); } catch { /* sin pantalla completa, igual funciona */ }
+  }, []);
+  // opciones.feria = la persona eligió "Modo feria" desde la intro
+  const terminarIntro = useCallback((opciones) => {
+    setIntro(false);
+    if (opciones?.feria) abrirFeria();
+  }, [abrirFeria]);
 
   const estacion = buscarEstacion(estacionId);
 
@@ -129,10 +132,6 @@ export default function App() {
 
   const resumenHoy = datos ? resumenDia(datos, estacion.lugar.split(",")[0]) : null;
 
-  function abrirFeria() {
-    setFeria(true);
-    try { document.documentElement.requestFullscreen?.(); } catch { /* sin pantalla completa, igual funciona */ }
-  }
   function cerrarFeria() {
     setFeria(false);
     try { if (document.fullscreenElement) document.exitFullscreen(); } catch { /* nada */ }
