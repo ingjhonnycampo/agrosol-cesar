@@ -436,13 +436,5 @@ footer { text-align: center; color: var(--mut); font-size: .85rem; padding: 24px
   .intro-tiembla, .intro-estrellas i, .intro-cuenta, .intro-cohete .llama, .humo i, .intro-pista { animation: none; }
 }
 
-/* ---------- Intro: botón para iniciar con sonido ---------- */
-.intro-iniciar {
-  display: grid; justify-items: center; gap: 2px; font: inherit; color: #fff; cursor: pointer; padding: 18px 34px;
-  background: rgba(255,255,255,.12); border: 2px solid rgba(255,255,255,.7); border-radius: 26px;
-  animation: pulsar 1.4s ease-in-out infinite; box-shadow: 0 0 40px rgba(123,224,138,.35);
-}
-.intro-iniciar span { font-size: 3rem; line-height: 1; }
-.intro-iniciar b { font-family: "Baloo 2", system-ui, sans-serif; font-size: 1.7rem; }
-.intro-iniciar small { opacity: .85; font-weight: 700; }
-@keyframes pulsar { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+/* ---------- Intro: aviso de sonido bloqueado ---------- */
+.intro-sin-sonido { left: 50%; width: auto; transform: translateX(-50%); white-space: nowrap; padding: 8px 18px; border-radius: 999px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.5); opacity: 1; }

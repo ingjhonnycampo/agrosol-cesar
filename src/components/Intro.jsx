@@ -7,18 +7,22 @@ const ESTRELLAS = Array.from({ length: 70 }, (_, i) => ({
 const ESPERA_MAX = 12000; // si los datos tardan demasiado, despega igual
 
 // Pantalla de bienvenida: cuenta regresiva 5-4-3-2-1, ignición y despegue de un cohete, con sonido.
-// Los navegadores no dejan sonar a una página recién abierta hasta que la persona toca algo:
-// si el sonido está bloqueado, aparece "Toca para despegar" y con ese toque suena todo.
+// La cuenta arranca sola al entrar. Los navegadores no dejan sonar a una página recién abierta
+// hasta que la persona toca algo: si el audio está bloqueado, se avisa y suena en cuanto toque
+// cualquier parte de la pantalla (si el rugido ya había empezado, se lanza en ese momento).
 // No despega hasta que los datos de la estación estén listos. Tocar el cohete lo sacude.
 export default function Intro({ listo, onTerminar }) {
   const [n, setN] = useState(5);                  // 5..1 cuenta, 0 = ignición
-  const [fase, setFase] = useState("preparando"); // preparando | espera | cuenta | ignicion | despegue
+  const [fase, setFase] = useState("cuenta");     // cuenta | ignicion | despegue
+  const faseRef = useRef("cuenta");
+  const [bloqueado, setBloqueado] = useState(false); // el navegador no deja sonar todavía
   const [ignicionLista, setIgnicionLista] = useState(false);
   const [esperaAgotada, setEsperaAgotada] = useState(false);
   const [sale, setSale] = useState(false);
   const [sacudir, setSacudir] = useState(0);
   const [sonido, setSonido] = useState(true);
   const audio = useRef(null);
+  const lanzarCohete = useRef(null);
 
   // el cuerpo de la página no se desplaza mientras dura la intro
   useEffect(() => {
@@ -32,7 +36,9 @@ export default function Intro({ listo, onTerminar }) {
     return () => clearTimeout(t);
   }, []);
 
-  // audio: si el navegador lo permite, la cuenta arranca sola; si no, pide un toque
+  useEffect(() => { faseRef.current = fase; }, [fase]);
+
+  // audio: se intenta desde el primer instante; si está bloqueado, el primer toque lo libera
   useEffect(() => {
     let ctx = null;
     try {
@@ -40,15 +46,26 @@ export default function Intro({ listo, onTerminar }) {
       ctx.resume?.();
     } catch { ctx = null; }
     audio.current = ctx;
-    const t = setTimeout(() => setFase(!ctx || ctx.state === "running" ? "cuenta" : "espera"), 250);
-    return () => { clearTimeout(t); try { ctx?.close(); } catch { /* ya cerrado */ } };
+    if (!ctx) return undefined;
+    const revisar = () => setBloqueado(ctx.state !== "running");
+    ctx.onstatechange = revisar;
+    const t = setTimeout(revisar, 250);
+    const liberar = () => {
+      ctx.resume?.().then(() => {
+        if (ctx.state !== "running") return;
+        setBloqueado(false);
+        // si el motor ya estaba encendido sin sonido, que suene ahora
+        if (faseRef.current === "ignicion" || faseRef.current === "despegue") lanzarCohete.current?.();
+      }).catch(() => {});
+    };
+    const eventos = ["pointerdown", "touchstart", "keydown", "click"];
+    eventos.forEach((e) => window.addEventListener(e, liberar, { once: false, passive: true }));
+    return () => {
+      clearTimeout(t);
+      eventos.forEach((e) => window.removeEventListener(e, liberar));
+      try { ctx.close(); } catch { /* ya cerrado */ }
+    };
   }, []);
-
-  function empezar() {
-    const c = audio.current;
-    try { c?.resume?.(); } catch { /* sin audio, igual despega */ }
-    setFase("cuenta");
-  }
 
   // la cuenta: un número por segundo
   useEffect(() => {
@@ -138,13 +155,15 @@ export default function Intro({ listo, onTerminar }) {
     chis.connect(hp); hp.connect(gc); gc.connect(maestro); chis.start(t0);
   }
 
+  lanzarCohete.current = sonidoCohete;
+
   useEffect(() => {
     if (fase === "cuenta") pitar(n === 1 ? 700 : 440, 0.2, "square", 0.05);
     if (fase === "ignicion") { pitar(1000, 0.25, "square", 0.06); sonidoCohete(); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [n, fase]);
 
-  const revisados = fase === "cuenta" ? 5 - n : fase === "ignicion" || fase === "despegue" ? 5 : 0;
+  const revisados = fase === "cuenta" ? 5 - n : 5;
   const despega = fase === "despegue";
   const fuego = fase === "ignicion" || despega;
   const cuentaActiva = fase === "cuenta" || fuego;
@@ -168,11 +187,6 @@ export default function Intro({ listo, onTerminar }) {
       </div>
 
       <div className="intro-centro">
-        {fase === "espera" && (
-          <button type="button" className="intro-iniciar" onClick={empezar}>
-            <span>🚀</span><b>Toca para despegar</b><small>con sonido 🔊</small>
-          </button>
-        )}
         {fase === "cuenta" && (
           <div className={"intro-cuenta n" + n} key={n}>
             <svg viewBox="0 0 120 120" aria-hidden="true">
@@ -185,7 +199,6 @@ export default function Intro({ listo, onTerminar }) {
         {fase === "ignicion" && <div className="intro-ignicion">¡IGNICIÓN!</div>}
         {despega && <div className="intro-ignicion intro-adios">¡DESPEGUE! 🚀</div>}
         <p className="intro-estado">
-          {fase === "espera" && "Cuando estés listo, toca el botón"}
           {fase === "cuenta" && (n > 1 ? "Revisando los sistemas de la estación…" : "Todo listo. Encendiendo motores…")}
           {fase === "ignicion" && (listo || esperaAgotada || !ignicionLista ? "Motores encendidos" : "Esperando los datos de la estación…")}
           {despega && "¡Rumbo a la huerta!"}
@@ -226,7 +239,9 @@ export default function Intro({ listo, onTerminar }) {
           </span>
         )}
       </button>
-      {cuentaActiva && fase === "cuenta" && <p className="intro-pista">Toca el cohete 👆</p>}
+      {bloqueado && sonido
+        ? <p className="intro-pista intro-sin-sonido">🔇 Toca la pantalla para activar el sonido</p>
+        : cuentaActiva && fase === "cuenta" && <p className="intro-pista">Toca el cohete 👆</p>}
     </div>
   );
 }
