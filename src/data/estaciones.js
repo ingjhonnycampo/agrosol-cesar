@@ -21,6 +21,8 @@ export const ESTACIONES = [
       { src: "/estaciones/colegio/Estacion1.jpeg", titulo: "La estación junto a la cancha, al atardecer" },
       { src: "/estaciones/colegio/estacion-1.jpg", titulo: "Ubicación georreferenciada de la estación", fecha: "3 de noviembre de 2026" },
     ],
+    // Estudio de suelo (lo que la estación no mide). Ejemplo: { fecha: "2026-11-10", ph: 6.4, mo: 2.8, p: 22, k: 0.35, ce: 0.7, textura: "franco" }
+    estudioSuelo: null,
     // Humedad del suelo calibrada el 3-nov-2026: lectura cruda con el sensor seco al aire y en agua
     calibracion: {
       suelo10: { seco: 0, humedo: 591 },

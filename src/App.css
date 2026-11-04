@@ -438,3 +438,130 @@ footer { text-align: center; color: var(--mut); font-size: .85rem; padding: 24px
 
 /* ---------- Intro: aviso de sonido bloqueado ---------- */
 .intro-sin-sonido { left: 50%; width: auto; transform: translateX(-50%); white-space: nowrap; padding: 8px 18px; border-radius: 999px; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.5); opacity: 1; }
+
+/* ---------- Cultivos, suelo y rotación ---------- */
+.cultivos-rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin: 6px 0 16px; }
+.ficha {
+  display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: center; align-content: start; text-align: left; font: inherit; color: inherit; cursor: pointer;
+  background: var(--card); border: 1px solid var(--borde); border-radius: 18px; padding: 14px; box-shadow: 0 4px 14px rgba(40,70,40,.06); transition: transform .2s, box-shadow .2s;
+}
+.ficha:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(40,70,40,.12); }
+.ficha-emoji { font-size: 2.4rem; line-height: 1; }
+.ficha-titulo { display: flex; flex-direction: column; }
+.ficha-titulo b { font-family: "Baloo 2", system-ui, sans-serif; font-size: 1.25rem; line-height: 1.1; }
+.ficha-titulo small { color: var(--mut); }
+.ficha-etiqueta { grid-column: 1 / -1; justify-self: start; font-size: .75rem; font-weight: 800; padding: 2px 10px; border-radius: 999px; }
+.ficha-etiqueta.ok { background: #e1f5e6; color: #1f6b34; }
+.ficha-etiqueta.por { background: #fff1d6; color: #8a5a00; }
+.ficha-datos { grid-column: 1 / -1; list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-size: .92rem; }
+.ficha-mas { grid-column: 1 / -1; display: none; gap: 4px; font-size: .9rem; color: var(--mut); border-top: 1px dashed var(--borde); padding-top: 8px; }
+.ficha.abierta .ficha-mas { display: grid; }
+.ficha-nota { color: var(--tx); font-weight: 700; }
+.fuentes { margin: 16px 0 0; background: var(--card); border: 1px dashed var(--borde); border-radius: 16px; padding: 10px 16px; }
+.fuentes summary { cursor: pointer; font-weight: 800; color: var(--mut); }
+.fuentes-aviso { background: #fff4e8; border: 1px solid #f3d3b0; border-radius: 12px; padding: 10px 12px; margin: 10px 0; line-height: 1.4; }
+.fuentes ul { margin: 6px 0 4px; padding-left: 18px; display: grid; gap: 6px; font-size: .92rem; }
+.fuentes a { color: #1b5e87; }
+.como-muestra { margin: 8px 0 2px; padding-left: 20px; display: grid; gap: 6px; }
+.cal-codigo { background: #1d2a1f; color: #c9f0cf; padding: 12px; border-radius: 12px; overflow-x: auto; font-size: .85rem; }
+
+.suelo-rejilla { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin: 6px 0 12px; }
+.suelo-campo { --c: #9aa5a0; display: grid; gap: 6px; align-content: start; background: var(--card); border: 2px solid var(--c); border-radius: 16px; padding: 12px 14px; transition: border-color .25s; }
+.suelo-nombre { font-weight: 800; }
+.suelo-nombre small { color: var(--mut); font-weight: 600; }
+.suelo-campo input, .suelo-campo select, .rot-form select { font: inherit; padding: 8px 10px; border: 2px solid var(--borde); border-radius: 10px; background: #fff; color: var(--tx); width: 100%; }
+.suelo-nivel { font-size: .9rem; } .suelo-nivel b { color: var(--c); }
+.suelo-que { font-size: .88rem; color: var(--mut); }
+
+.rot-form { display: grid; gap: 12px; background: var(--card); border: 1px solid var(--borde); border-radius: 18px; padding: 14px 16px; margin-bottom: 8px; }
+.rot-form > label, .rot-pesos > span { display: grid; gap: 4px; font-weight: 800; }
+.rot-pesos { display: grid; gap: 6px; }
+.rot-peso { display: grid; grid-template-columns: minmax(130px, 190px) 1fr 84px; gap: 10px; align-items: center; font-weight: 700; }
+.rot-peso input { width: 100%; accent-color: var(--verde); }
+.rot-peso b { color: var(--verde); font-size: .85rem; text-align: right; }
+.rot-lista { list-style: none; margin: 0 0 10px; padding: 0; display: grid; gap: 10px; }
+.rot-tarjeta { background: var(--card); border: 1px solid var(--borde); border-radius: 18px; box-shadow: 0 4px 14px rgba(40,70,40,.06); overflow: hidden; }
+.rot-cabeza { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; font: inherit; color: inherit; cursor: pointer; background: none; border: 0; text-align: left; }
+.rot-puesto { font-size: 1.6rem; min-width: 1.6em; text-align: center; font-weight: 800; color: var(--mut); }
+.rot-emoji { font-size: 2.2rem; line-height: 1; }
+.rot-nombre { flex: 1; display: flex; flex-direction: column; }
+.rot-nombre b { font-family: "Baloo 2", system-ui, sans-serif; font-size: 1.3rem; line-height: 1.1; }
+.rot-nombre small { color: var(--mut); }
+.rot-puntaje { --c: #2f9e4f; width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--c) var(--p), #e6ece1 0); }
+.rot-puntaje b { width: 44px; height: 44px; border-radius: 50%; background: #fff; display: grid; place-items: center; color: var(--c); font-family: "Baloo 2", system-ui, sans-serif; font-size: 1.15rem; }
+.rot-razones { list-style: none; margin: 0; padding: 4px 16px 14px; display: grid; gap: 6px; font-size: .94rem; line-height: 1.35; }
+.rot-razones li { padding-left: 2px; }
+
+@media (max-width: 520px) {
+  .rot-peso { grid-template-columns: 1fr 84px; }
+  .rot-peso input { grid-column: 1 / -1; order: 3; }
+  .cultivos-rejilla { grid-template-columns: 1fr; }
+}
+
+/* ---------- Lo que aprendió el modelo de la estación ---------- */
+.aprende { --c: #9aa5a0; background: var(--card); border: 2px solid var(--c); border-radius: 18px; padding: 12px 16px; margin: 0 0 14px; }
+.aprende-cabeza { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; }
+.aprende-nivel { background: var(--c); color: #fff; font-weight: 800; font-size: .8rem; padding: 2px 12px; border-radius: 999px; text-transform: capitalize; }
+.aprende p { margin: 6px 0; line-height: 1.4; }
+.aprende ul { margin: 4px 0 2px; padding-left: 18px; display: grid; gap: 4px; font-size: .94rem; line-height: 1.35; }
+.rot-prob { font-weight: 800; }
+
+/* ---------- Informe ---------- */
+.informe-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; background: var(--card); border: 1px solid var(--borde); border-radius: 18px; padding: 14px 16px; margin-bottom: 16px; }
+.informe-form label { display: grid; gap: 4px; font-weight: 800; }
+.informe-form label.ancho { grid-column: 1 / -1; }
+.informe-form input, .informe-form textarea { font: inherit; padding: 8px 10px; border: 2px solid var(--borde); border-radius: 10px; width: 100%; color: var(--tx); background: #fff; resize: vertical; }
+.boton-informe { grid-column: 1 / -1; justify-self: start; font-size: 1.05rem; padding: 10px 22px; }
+.informe-vista { overflow-x: auto; padding-bottom: 8px; }
+#informe-impresion { display: none; }
+
+.informe-hoja { max-width: 820px; margin: 0 auto; background: #fff; color: #1d2a1f; padding: 28px 30px; border: 1px solid var(--borde); border-radius: 6px; box-shadow: 0 8px 28px rgba(40,70,40,.14); font-size: .95rem; line-height: 1.45; }
+.inf-portada { display: flex; align-items: center; gap: 16px; border-bottom: 4px solid #2f7d43; padding-bottom: 12px; margin-bottom: 14px; }
+.inf-portada h1 { margin: 0; font-size: 1.7rem; line-height: 1.1; color: #1f5c30; }
+.inf-marca { margin: 0 0 2px; font-weight: 800; font-size: .78rem; letter-spacing: .05em; text-transform: uppercase; color: #5d6b60; }
+.inf-sub { margin: 2px 0 0; color: #445; }
+.inf-ficha, .inf-tabla { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: .9rem; }
+.inf-ficha th, .inf-ficha td, .inf-tabla th, .inf-tabla td { border: 1px solid #d8e1d3; padding: 5px 8px; text-align: left; vertical-align: top; }
+.inf-ficha th, .inf-tabla th { background: #eef4e8; font-weight: 800; white-space: nowrap; }
+.inf-tabla thead th { background: #dcead3; }
+.inf-seccion { margin: 16px 0 0; }
+.inf-seccion h2 { margin: 0 0 6px; font-size: 1.2rem; color: #1f5c30; border-bottom: 2px solid #d8e1d3; padding-bottom: 3px; }
+.inf-seccion p { margin: 6px 0; }
+.inf-nota { color: #4a5a4d; font-size: .85rem; }
+.inf-grafica { width: 100%; height: auto; margin-top: 6px; }
+.inf-cultivo { margin: 10px 0; padding: 8px 12px; border-left: 5px solid #2f9e4f; background: #f7faf4; break-inside: avoid; }
+.inf-cultivo h3 { margin: 0 0 4px; font-size: 1.05rem; }
+.inf-cultivo h3 small { display: block; font-weight: 600; color: #4a5a4d; font-size: .8rem; font-family: "Nunito", system-ui, sans-serif; }
+.inf-cultivo ul, .inf-fuentes { margin: 4px 0; padding-left: 18px; display: grid; gap: 3px; font-size: .88rem; }
+.inf-fuentes span { word-break: break-all; color: #1b5e87; }
+.inf-pie { margin-top: 20px; padding-top: 8px; border-top: 2px solid #d8e1d3; font-size: .78rem; color: #5d6b60; text-align: center; }
+.informe-hoja .aprende { border-width: 1px; border-radius: 6px; padding: 8px 12px; margin: 8px 0; }
+.informe-hoja .aprende p, .informe-hoja .aprende ul { font-size: .88rem; }
+
+@media print {
+  @page { size: A4; margin: 13mm; }
+  html, body { background: #fff !important; }
+  body > *:not(#informe-impresion) { display: none !important; }
+  #informe-impresion { display: block !important; }
+  .informe-hoja { max-width: none; border: 0; box-shadow: none; padding: 0; border-radius: 0; font-size: 10.5pt; }
+  .inf-seccion h2 { break-after: avoid; }
+  .inf-tabla, .inf-ficha, .inf-grafica { break-inside: avoid; }
+  .inf-saltar { break-before: page; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+.inf-aviso { background: #fff4e8; border-left: 5px solid #e8a317; padding: 6px 10px; }
+
+/* ---------- Aviso y calendario de siembra ---------- */
+.rot-alerta { background: #fff4e8; border-left: 5px solid #e8a317; border-radius: 12px; padding: 10px 14px; margin: 0 0 12px; line-height: 1.4; }
+.calsiembra { margin-top: 22px; }
+.calsiembra-caja { overflow-x: auto; background: var(--card); border: 1px solid var(--borde); border-radius: 16px; padding: 6px; }
+.calsiembra-tabla { border-collapse: separate; border-spacing: 3px; width: 100%; min-width: 640px; font-size: .85rem; }
+.calsiembra-tabla th { font-weight: 800; padding: 2px 4px; text-align: center; color: var(--mut); }
+.calsiembra-tabla tbody th { text-align: left; white-space: nowrap; color: var(--tx); position: sticky; left: 0; background: var(--card); padding-right: 8px; }
+.calsiembra-tabla th.elegido { color: var(--verde); text-decoration: underline; }
+.calsiembra-tabla td { padding: 0; }
+.calsiembra-tabla td button { width: 100%; min-width: 38px; height: 30px; border: 0; border-radius: 7px; color: #fff; font: inherit; font-weight: 800; cursor: pointer; text-shadow: 0 1px 2px rgba(0,0,0,.35); transition: transform .12s; }
+.calsiembra-tabla td button:hover { transform: scale(1.12); }
+.calsiembra-tabla td.mejor button { outline: 3px solid #1d2a1f; outline-offset: -3px; }
+.calsiembra-tabla td.elegido button { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--verde); }
+.calsiembra-detalle { background: var(--card); border: 1px solid var(--borde); border-left: 5px solid var(--verde); border-radius: 12px; padding: 10px 14px; margin-top: 8px; line-height: 1.4; }

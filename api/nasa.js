@@ -26,6 +26,21 @@ export default async function handler(req, res) {
     const est = buscarEstacion(q.get("estacion") || ESTACIONES[0].id);
     if (!est) return res.status(404).json({ error: "Estación desconocida" });
 
+    const punto0 = `community=AG&longitude=${est.lon}&latitude=${est.lat}&format=JSON`;
+
+    // Historial diario 2001–2025 (clima de 25 años) en arreglos compactos, para simular qué habría pasado cada año
+    if (q.get("historial")) {
+      const h = await pedir(`${BASE}/daily/point?parameters=T2M,T2M_MAX,T2M_MIN,PRECTOTCORR&${punto0}&start=20010101&end=20251231`);
+      const hp = h.properties.parameter;
+      const dias = Object.keys(hp.T2M);
+      const col = (nombre) => dias.map((k) => limpio(hp[nombre][k]));
+      res.setHeader("Cache-Control", "s-maxage=604800, stale-while-revalidate=2592000");
+      return res.status(200).json({
+        estacion: est.id, inicio: iso(dias[0]), fin: iso(dias[dias.length - 1]),
+        t2m: col("T2M"), tmax: col("T2M_MAX"), tmin: col("T2M_MIN"), lluvia: col("PRECTOTCORR"),
+      });
+    }
+
     const hoy = new Date().toISOString().slice(0, 10);
     let hasta = FECHA.test(q.get("hasta") || "") ? q.get("hasta") : hoy;
     if (hasta > hoy) hasta = hoy;

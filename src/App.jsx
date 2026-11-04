@@ -13,6 +13,13 @@ import Graficas from "./components/Graficas.jsx";
 import ResumenDias from "./components/ResumenDias.jsx";
 import Comparar from "./components/Comparar.jsx";
 import Nasa from "./components/Nasa.jsx";
+import Rotacion, { useRecomendacion } from "./components/Rotacion.jsx";
+import Informe from "./components/Informe.jsx";
+import { useDatosModelo, CONSULTA_INICIAL } from "./lib/useModelo.js";
+import { cargarProyecto, guardarProyecto } from "./lib/proyecto.js";
+import Cultivos from "./components/Cultivos.jsx";
+import Suelo from "./components/Suelo.jsx";
+import { cargarSuelo, guardarSuelo } from "./lib/suelo.js";
 import Calendario from "./components/Calendario.jsx";
 import Tabla from "./components/Tabla.jsx";
 import { ESTACIONES, ESTACION_INICIAL, buscarEstacion } from "./data/estaciones.js";
@@ -20,6 +27,7 @@ import { diaLocal } from "./lib/limpieza.js";
 import { resumenDia } from "./lib/semaforo.js";
 import { filtrar, hoyLocal, porDia, rangoPreset } from "./lib/analisis.js";
 
+const CON_FECHAS = ["graficas", "dias", "nasa", "comparar", "calendario", "tabla"]; // vistas que usan el filtro de fechas
 const CADA = 120000; // vuelve a pedir datos cada 2 minutos
 
 const VISTAS = [
@@ -27,6 +35,10 @@ const VISTAS = [
   { id: "graficas", nombre: "Gráficas", icono: "📈" },
   { id: "dias", nombre: "Por día", icono: "📊" },
   { id: "nasa", nombre: "NASA", icono: "🛰️" },
+  { id: "rotacion", nombre: "Rotación", icono: "🌱" },
+  { id: "cultivos", nombre: "Cultivos", icono: "🌽" },
+  { id: "informe", nombre: "Informe", icono: "📄" },
+  { id: "suelo", nombre: "Suelo", icono: "🧪" },
   { id: "comparar", nombre: "Comparar", icono: "⚖️" },
   { id: "calendario", nombre: "Calendario", icono: "🗓️" },
   { id: "tabla", nombre: "Datos", icono: "📋" },
@@ -53,7 +65,11 @@ export default function App() {
   const [datos, setDatos] = useState(null);
   const [error, setError] = useState("");
   const [, setTic] = useState(0);
-  const [vista, setVista] = useState("ahora");
+  // ?vista=informe (u otra pestaña) abre directamente esa vista
+  const [vista, setVista] = useState(() => {
+    const v = new URLSearchParams(window.location.search).get("vista");
+    return VISTAS.some((x) => x.id === v) ? v : "ahora";
+  });
   const [preset, setPreset] = useState("7d");
   const [custom, setCustom] = useState(null);
   // La cuenta regresiva del cohete sale cada vez que se abre la dirección. ?sinintro o ?feria la saltan.
@@ -74,6 +90,16 @@ export default function App() {
   }, [abrirFeria]);
 
   const estacion = buscarEstacion(estacionId);
+
+  // estudio de suelo: lo escribe el equipo y se guarda en este navegador
+  const [suelo, setSuelo] = useState(() => cargarSuelo(estacion));
+  useEffect(() => { setSuelo(cargarSuelo(buscarEstacion(estacionId))); }, [estacionId]);
+  // consulta del agricultor, datos del proyecto y datos del modelo (se piden solo si una pestaña los usa)
+  const [consulta, setConsulta] = useState(CONSULTA_INICIAL);
+  const [proyecto, setProyecto] = useState(() => cargarProyecto(estacion));
+  useEffect(() => { setProyecto(cargarProyecto(buscarEstacion(estacionId))); }, [estacionId]);
+  const cambiarProyecto = useCallback((p) => { setProyecto(p); guardarProyecto(estacionId, p); }, [estacionId]);
+  const cambiarSuelo = useCallback((nuevo) => { setSuelo(nuevo); guardarSuelo(estacionId, nuevo); }, [estacionId]);
 
   useEffect(() => {
     let vivo = true;
@@ -112,6 +138,9 @@ export default function App() {
 
   const filasRango = useMemo(() => (todas ? filtrar(todas, rango.desde, rango.hasta) : []), [todas, rango.desde, rango.hasta]);
   const dias = useMemo(() => porDia(filasRango), [filasRango]);
+  const diasTodos = useMemo(() => (todas ? porDia(todas) : []), [todas]);
+  const modelo = useDatosModelo(estacionId, diasTodos[0]?.dia, vista === "rotacion" || vista === "informe");
+  const { ap, resultados } = useRecomendacion({ consulta, modelo, diasEst: diasTodos, suelo, humedadHoy: u?.suelo10 ?? null });
 
   // Frases del astronauta: primero lo que mide la estación, luego datos curiosos
   const mensajes = useMemo(() => {
@@ -174,7 +203,7 @@ export default function App() {
               ))}
             </nav>
 
-            {vista !== "ahora" && (
+            {CON_FECHAS.includes(vista) && (
               <FiltroFechas
                 rango={rango} limites={limites} nMediciones={filasRango.length}
                 onPreset={(p) => setPreset(p)}
@@ -204,6 +233,10 @@ export default function App() {
             {vista === "graficas" && <Graficas filas={filasRango} />}
             {vista === "dias" && <ResumenDias dias={dias} />}
             {vista === "nasa" && <Nasa estacion={estacion} todas={todas} rango={rango} dias={dias} />}
+            {vista === "rotacion" && <Rotacion estacion={estacion} suelo={suelo} consulta={consulta} onConsulta={setConsulta} modelo={modelo} ap={ap} resultados={resultados} />}
+            {vista === "cultivos" && <Cultivos />}
+            {vista === "informe" && <Informe estacion={estacion} diasEst={diasTodos} suelo={suelo} consulta={consulta} modelo={modelo} ap={ap} resultados={resultados} proyecto={proyecto} onProyecto={cambiarProyecto} />}
+            {vista === "suelo" && <Suelo suelo={suelo} onCambiar={cambiarSuelo} estacion={estacion} />}
             {vista === "comparar" && <Comparar todas={todas} rango={rango} />}
             {vista === "calendario" && <Calendario dias={dias} rango={rango} />}
             {vista === "tabla" && <Tabla filas={filasRango} />}

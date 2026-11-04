@@ -4,8 +4,8 @@ import { diaLocal } from "../lib/limpieza.js";
 
 const COLUMNAS = [
   { k: "t", nombre: "Fecha y hora", fmt: (f) => new Date(f.t).toLocaleString("es-CO", { timeZone: "America/Bogota", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) },
-  { k: "temp", nombre: "Aire °C", dec: 1 },
-  { k: "tsuelo", nombre: "Suelo °C", dec: 1 },
+  { k: "temp", nombre: "Temp. aire °C", dec: 1 },
+  { k: "tsuelo", nombre: "Temp. suelo °C", dec: 1 },
   { k: "suelo10", nombre: "Suelo 10 cm %", dec: 0 },
   { k: "suelo30", nombre: "Suelo 30 cm %", dec: 0 },
   { k: "luz", nombre: "Luz %", dec: 0 },
