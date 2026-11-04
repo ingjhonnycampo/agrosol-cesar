@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Cielo from "./components/Cielo.jsx";
 import Medidores from "./components/Medidores.jsx";
 import Resumen from "./components/Resumen.jsx";
 import ModoFeria from "./components/ModoFeria.jsx";
 import ComoFunciona from "./components/ComoFunciona.jsx";
 import Logo from "./components/Logo.jsx";
+import Intro from "./components/Intro.jsx";
 import Semaforo from "./components/Semaforo.jsx";
 import PanelEstacion from "./components/PanelEstacion.jsx";
 import FiltroFechas from "./components/FiltroFechas.jsx";
@@ -55,6 +56,18 @@ export default function App() {
   const [vista, setVista] = useState("ahora");
   const [preset, setPreset] = useState("7d");
   const [custom, setCustom] = useState(null);
+  // La cuenta regresiva del cohete se ve una vez por visita. ?intro la fuerza; ?feria o ?sinintro la saltan.
+  const [intro, setIntro] = useState(() => {
+    const q = new URLSearchParams(window.location.search);
+    if (q.has("intro")) return true;
+    if (q.has("feria") || q.has("sinintro")) return false;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return false;
+    try { return !sessionStorage.getItem("agrosol-intro"); } catch { return true; }
+  });
+  const terminarIntro = useCallback(() => {
+    try { sessionStorage.setItem("agrosol-intro", "1"); } catch { /* sin almacenamiento, no pasa nada */ }
+    setIntro(false);
+  }, []);
   const [feria, setFeria] = useState(() => new URLSearchParams(window.location.search).has("feria"));
 
   const estacion = buscarEstacion(estacionId);
@@ -127,6 +140,7 @@ export default function App() {
 
   return (
     <>
+      {intro && <Intro listo={!!datos || !!error} onTerminar={terminarIntro} />}
       <Cielo luz={u?.luz} mensajes={mensajes} ambiente={resumenHoy?.ambiente}>
         <p className="marca">NASA Space Apps 2026 · {estacion.lugar}</p>
         <h1><Logo tam={44} /> AgroSol Cesar</h1>

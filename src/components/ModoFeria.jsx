@@ -6,7 +6,7 @@ import { ComparacionesMes } from "./Nasa.jsx";
 import { COLORES_NIVEL } from "../lib/semaforo.js";
 
 const SEGUNDOS = 12;
-const TITULOS = ["El cultivo hoy", "¿Qué necesita?", "Lo que mide la estación", "Nuestra estación", "Frente a la NASA"];
+const TITULOS = ["El cultivo hoy", "¿Qué necesita?", "Lo que mide la estación", "Nuestra estación", "Frente a la NASA", "Llévala en tu celular"];
 
 // Pantalla completa que cambia sola cada 12 segundos, para dejarla corriendo en la feria.
 // Tocar la pantalla pasa a la siguiente; la ✕ o Esc la cierran.
@@ -63,6 +63,13 @@ export default function ModoFeria({ datos, estacion, resumen, todas, onSalir }) 
           <div className="feria-estacion">
             {estacion.fotos?.[0] && <img src={estacion.fotos[0].src} alt={estacion.fotos[0].titulo} />}
             <Mapa estaciones={[estacion]} activa={estacion.id} onElegir={() => {}} />
+          </div>
+        )}
+        {i === 5 && (
+          <div className="feria-qr">
+            <img src="/qr-agrosol.svg" alt="Código QR de AgroSol Cesar" />
+            <p>Escanea con la cámara de tu celular y mira la estación en vivo</p>
+            <b>agrosol-cesar.vercel.app</b>
           </div>
         )}
         {i === 4 && (nasa ? <ComparacionesMes nasa={nasa} todas={todas} /> : <p className="vacio">Consultando a la NASA…</p>)}
