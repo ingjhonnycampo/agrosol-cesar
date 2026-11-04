@@ -6,17 +6,18 @@ const ESTRELLAS = Array.from({ length: 70 }, (_, i) => ({
 }));
 const ESPERA_MAX = 12000; // si los datos tardan demasiado, despega igual
 
-// Pantalla de bienvenida: cuenta regresiva 5-4-3-2-1, ignición y despegue de un cohete.
-// Se queda al menos ~6 s y no despega hasta que los datos de la estación estén listos.
-// Tocar el cohete lo sacude; "Saltar" la cierra; el botón de sonido activa los pitidos.
+// Pantalla de bienvenida: cuenta regresiva 5-4-3-2-1, ignición y despegue de un cohete, con sonido.
+// Los navegadores no dejan sonar a una página recién abierta hasta que la persona toca algo:
+// si el sonido está bloqueado, aparece "Toca para despegar" y con ese toque suena todo.
+// No despega hasta que los datos de la estación estén listos. Tocar el cohete lo sacude.
 export default function Intro({ listo, onTerminar }) {
-  const [n, setN] = useState(5);                 // 5..1 cuenta, 0 = ignición
-  const [fase, setFase] = useState("cuenta");    // cuenta | ignicion | despegue
+  const [n, setN] = useState(5);                  // 5..1 cuenta, 0 = ignición
+  const [fase, setFase] = useState("preparando"); // preparando | espera | cuenta | ignicion | despegue
   const [ignicionLista, setIgnicionLista] = useState(false);
   const [esperaAgotada, setEsperaAgotada] = useState(false);
   const [sale, setSale] = useState(false);
   const [sacudir, setSacudir] = useState(0);
-  const [sonido, setSonido] = useState(false);
+  const [sonido, setSonido] = useState(true);
   const audio = useRef(null);
 
   // el cuerpo de la página no se desplaza mientras dura la intro
@@ -30,6 +31,24 @@ export default function Intro({ listo, onTerminar }) {
     const t = setTimeout(() => setEsperaAgotada(true), ESPERA_MAX);
     return () => clearTimeout(t);
   }, []);
+
+  // audio: si el navegador lo permite, la cuenta arranca sola; si no, pide un toque
+  useEffect(() => {
+    let ctx = null;
+    try {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      ctx.resume?.();
+    } catch { ctx = null; }
+    audio.current = ctx;
+    const t = setTimeout(() => setFase(!ctx || ctx.state === "running" ? "cuenta" : "espera"), 250);
+    return () => { clearTimeout(t); try { ctx?.close(); } catch { /* ya cerrado */ } };
+  }, []);
+
+  function empezar() {
+    const c = audio.current;
+    try { c?.resume?.(); } catch { /* sin audio, igual despega */ }
+    setFase("cuenta");
+  }
 
   // la cuenta: un número por segundo
   useEffect(() => {
@@ -60,50 +79,75 @@ export default function Intro({ listo, onTerminar }) {
     return () => { clearTimeout(a); clearTimeout(b); };
   }, [fase, onTerminar]);
 
-  // sonido (solo si la persona lo activa: los navegadores no dejan sonar solos)
+  // ---------- sonido ----------
+  const suena = () => sonido && audio.current && audio.current.state === "running";
+
   function pitar(freq, dur, tipo = "sine", vol = 0.12) {
+    if (!suena()) return;
     const c = audio.current;
-    if (!c) return;
     const o = c.createOscillator(); const g = c.createGain();
     o.type = tipo; o.frequency.value = freq;
     g.gain.setValueAtTime(vol, c.currentTime);
     g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
     o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + dur);
   }
-  function rugido() {
-    const c = audio.current;
-    if (!c) return;
-    const largo = c.sampleRate * 2.2;
-    const buf = c.createBuffer(1, largo, c.sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < largo; i++) d[i] = Math.random() * 2 - 1;
-    const fuente = c.createBufferSource(); fuente.buffer = buf;
-    const filtro = c.createBiquadFilter(); filtro.type = "lowpass"; filtro.frequency.value = 500;
-    const g = c.createGain();
-    g.gain.setValueAtTime(0.0001, c.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.35, c.currentTime + 0.5);
-    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 2.2);
-    fuente.connect(filtro); filtro.connect(g); g.connect(c.destination); fuente.start();
+
+  // Motor de cohete: rugido de ruido filtrado que sube y baja, retumbo grave y chisporroteo
+  function sonidoCohete() {
+    if (!suena()) return;
+    const c = audio.current; const t0 = c.currentTime; const D = 5;
+    const ruido = (seg) => {
+      const buf = c.createBuffer(1, Math.floor(c.sampleRate * seg), c.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      const f = c.createBufferSource(); f.buffer = buf; return f;
+    };
+    const maestro = c.createGain(); maestro.gain.value = 0.9; maestro.connect(c.destination);
+
+    // rugido principal
+    const roar = ruido(D); const lp = c.createBiquadFilter(); lp.type = "lowpass";
+    lp.frequency.setValueAtTime(250, t0);
+    lp.frequency.linearRampToValueAtTime(900, t0 + 1.4);
+    lp.frequency.linearRampToValueAtTime(2800, t0 + 3);
+    lp.frequency.linearRampToValueAtTime(500, t0 + D);
+    const gr = c.createGain();
+    gr.gain.setValueAtTime(0.0001, t0);
+    gr.gain.exponentialRampToValueAtTime(0.5, t0 + 0.7);
+    gr.gain.setValueAtTime(0.55, t0 + 3);
+    gr.gain.exponentialRampToValueAtTime(0.001, t0 + D);
+    roar.connect(lp); lp.connect(gr); gr.connect(maestro); roar.start(t0);
+
+    // retumbo grave
+    const o = c.createOscillator(); o.type = "sawtooth";
+    o.frequency.setValueAtTime(38, t0); o.frequency.linearRampToValueAtTime(70, t0 + 3);
+    const lpo = c.createBiquadFilter(); lpo.type = "lowpass"; lpo.frequency.value = 140;
+    const go = c.createGain();
+    go.gain.setValueAtTime(0.0001, t0);
+    go.gain.exponentialRampToValueAtTime(0.45, t0 + 1);
+    go.gain.exponentialRampToValueAtTime(0.001, t0 + D);
+    o.connect(lpo); lpo.connect(go); go.connect(maestro); o.start(t0); o.stop(t0 + D);
+
+    // chisporroteo de la llama
+    const chis = ruido(D); const hp = c.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 3500;
+    const gc = c.createGain(); gc.gain.setValueAtTime(0, t0);
+    for (let k = 0; k < 70; k++) {
+      const t = t0 + 0.2 + Math.random() * (D - 1);
+      gc.gain.setValueAtTime(Math.random() * 0.22, t);
+      gc.gain.setValueAtTime(0, t + 0.02 + Math.random() * 0.03);
+    }
+    chis.connect(hp); hp.connect(gc); gc.connect(maestro); chis.start(t0);
   }
+
   useEffect(() => {
-    if (!sonido) return;
-    if (fase === "cuenta") pitar(n === 1 ? 660 : 440, 0.18, "square", 0.06);
-    if (fase === "ignicion") { pitar(880, 0.5, "sawtooth", 0.08); rugido(); }
+    if (fase === "cuenta") pitar(n === 1 ? 700 : 440, 0.2, "square", 0.05);
+    if (fase === "ignicion") { pitar(1000, 0.25, "square", 0.06); sonidoCohete(); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [n, fase, sonido]);
+  }, [n, fase]);
 
-  function alternarSonido(e) {
-    e.stopPropagation();
-    try {
-      if (!audio.current) audio.current = new (window.AudioContext || window.webkitAudioContext)();
-      audio.current.resume?.();
-      setSonido((s) => !s);
-    } catch { /* sin audio, la intro sigue igual */ }
-  }
-
-  const revisados = fase === "cuenta" ? 5 - n : 5;
+  const revisados = fase === "cuenta" ? 5 - n : fase === "ignicion" || fase === "despegue" ? 5 : 0;
   const despega = fase === "despegue";
   const fuego = fase === "ignicion" || despega;
+  const cuentaActiva = fase === "cuenta" || fuego;
 
   return (
     <div className={"intro" + (sale ? " intro-sale" : "") + (fase === "ignicion" ? " intro-tiembla" : "")} role="dialog" aria-label="Cuenta regresiva de despegue">
@@ -117,13 +161,18 @@ export default function Intro({ listo, onTerminar }) {
       <div className="intro-barra">
         <span>🌱 AgroSol Cesar · Galactic Devs</span>
         <span className="intro-botones">
-          <button type="button" onClick={alternarSonido} aria-pressed={sonido}>{sonido ? "🔊" : "🔇"} Sonido</button>
+          <button type="button" onClick={() => setSonido((s) => !s)} aria-pressed={sonido}>{sonido ? "🔊 Sonido" : "🔇 Silencio"}</button>
           <button type="button" onClick={(e) => { e.stopPropagation(); onTerminar({ feria: true }); }}>📺 Modo feria</button>
           <button type="button" onClick={() => onTerminar()}>Saltar ▸</button>
         </span>
       </div>
 
       <div className="intro-centro">
+        {fase === "espera" && (
+          <button type="button" className="intro-iniciar" onClick={empezar}>
+            <span>🚀</span><b>Toca para despegar</b><small>con sonido 🔊</small>
+          </button>
+        )}
         {fase === "cuenta" && (
           <div className={"intro-cuenta n" + n} key={n}>
             <svg viewBox="0 0 120 120" aria-hidden="true">
@@ -136,6 +185,7 @@ export default function Intro({ listo, onTerminar }) {
         {fase === "ignicion" && <div className="intro-ignicion">¡IGNICIÓN!</div>}
         {despega && <div className="intro-ignicion intro-adios">¡DESPEGUE! 🚀</div>}
         <p className="intro-estado">
+          {fase === "espera" && "Cuando estés listo, toca el botón"}
           {fase === "cuenta" && (n > 1 ? "Revisando los sistemas de la estación…" : "Todo listo. Encendiendo motores…")}
           {fase === "ignicion" && (listo || esperaAgotada || !ignicionLista ? "Motores encendidos" : "Esperando los datos de la estación…")}
           {despega && "¡Rumbo a la huerta!"}
@@ -153,7 +203,7 @@ export default function Intro({ listo, onTerminar }) {
       </div>
 
       <button type="button" className={"intro-cohete" + (despega ? " vuela" : "") + (fuego ? " fuego" : "") + (sacudir ? " sacude" : "")}
-        key={"c" + sacudir} onClick={(e) => { e.stopPropagation(); setSacudir((s) => s + 1); if (sonido) pitar(1200, 0.12, "triangle", 0.08); }}
+        key={"c" + sacudir} onClick={(e) => { e.stopPropagation(); setSacudir((s) => s + 1); pitar(1200, 0.12, "triangle", 0.08); }}
         aria-label="Toca el cohete">
         <svg viewBox="0 0 100 190" aria-hidden="true">
           <g className="llama">
@@ -176,7 +226,7 @@ export default function Intro({ listo, onTerminar }) {
           </span>
         )}
       </button>
-      {fase === "cuenta" && n > 0 && <p className="intro-pista">Toca el cohete 👆</p>}
+      {cuentaActiva && fase === "cuenta" && <p className="intro-pista">Toca el cohete 👆</p>}
     </div>
   );
 }
