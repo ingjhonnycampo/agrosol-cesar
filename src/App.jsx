@@ -79,7 +79,12 @@ export default function App() {
   });
   const [feria, setFeria] = useState(() => new URLSearchParams(window.location.search).has("feria"));
   // Después del cohete se elige el idioma; el botón 🌐 del encabezado lo vuelve a abrir
-  const [eligiendo, setEligiendo] = useState(false);
+  // Si no hay cohete (movimiento reducido) el selector sale primero, antes de mostrar cualquier dato.
+  const [eligiendo, setEligiendo] = useState(() => {
+    const q = new URLSearchParams(window.location.search);
+    if (q.has("feria") || q.has("sinintro")) return false;
+    return !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  });
   const pendienteFeria = useRef(false);
   const abrirFeria = useCallback(() => {
     setFeria(true);
@@ -91,6 +96,7 @@ export default function App() {
     pendienteFeria.current = !!opciones?.feria;
     setEligiendo(true);
   }, []);
+  const mostrarSelector = useCallback(() => setEligiendo(true), []);
   const cerrarSelector = useCallback(() => {
     setEligiendo(false);
     if (pendienteFeria.current) { pendienteFeria.current = false; abrirFeria(); }
@@ -190,7 +196,7 @@ export default function App() {
 
   return (
     <>
-      {intro && <Intro listo={!!datos || !!error} onTerminar={terminarIntro} />}
+      {intro && <Intro listo={!!datos || !!error} onTerminar={terminarIntro} onSalir={mostrarSelector} />}
       {eligiendo && <SelectorIdioma onElegir={cerrarSelector} onCerrar={cerrarSelector} />}
       <Cielo luz={u?.luz} mensajes={mensajes} ambiente={resumenHoy?.ambiente}>
         <p className="marca">{t("app.marca", { lugar: estacion.lugar })}</p>

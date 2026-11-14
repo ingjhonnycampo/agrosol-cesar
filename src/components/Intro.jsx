@@ -12,7 +12,7 @@ const ESPERA_MAX = 12000; // si los datos tardan demasiado, despega igual
 // hasta que la persona toca algo: si el audio está bloqueado, se avisa y suena en cuanto toque
 // cualquier parte de la pantalla (si el rugido ya había empezado, se lanza en ese momento).
 // No despega hasta que los datos de la estación estén listos. Tocar el cohete lo sacude.
-export default function Intro({ listo, onTerminar }) {
+export default function Intro({ listo, onTerminar, onSalir }) {
   const { t } = useIdioma();
   const [n, setN] = useState(5);                  // 5..1 cuenta, 0 = ignición
   const [fase, setFase] = useState("cuenta");     // cuenta | ignicion | despegue
@@ -93,10 +93,10 @@ export default function Intro({ listo, onTerminar }) {
 
   useEffect(() => {
     if (fase !== "despegue") return;
-    const a = setTimeout(() => setSale(true), 1300);
+    const a = setTimeout(() => { setSale(true); onSalir?.(); }, 1300); // al empezar a desvanecerse, debajo ya está el selector de idioma
     const b = setTimeout(() => onTerminar(), 2200);
     return () => { clearTimeout(a); clearTimeout(b); };
-  }, [fase, onTerminar]);
+  }, [fase, onTerminar, onSalir]);
 
   // ---------- sonido ----------
   const suena = () => sonido && audio.current && audio.current.state === "running";
