@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as echarts from "echarts";
 import { COLORES_NIVEL } from "../lib/semaforo.js";
+import { sepDecimal } from "../lib/num.js";
 
 // Medidor animado tipo reloj. La aguja y el arco se llenan solos cuando cambia el valor.
 export default function Medidor({ titulo, valor, unidad, min = 0, max = 100, color: colorBase, nivel, nota, decimales = 0 }) {
@@ -15,6 +16,7 @@ export default function Medidor({ titulo, valor, unidad, min = 0, max = 100, col
     return () => { ro.disconnect(); chart.current.dispose(); };
   }, []);
 
+  const sep = sepDecimal();
   useEffect(() => {
     const sinDato = valor === null || valor === undefined;
     const letra = Math.round(Math.min(26, Math.max(16, ref.current.clientWidth / 7)));
@@ -42,12 +44,12 @@ export default function Medidor({ titulo, valor, unidad, min = 0, max = 100, col
           fontWeight: 800,
           fontFamily: "Baloo 2, sans-serif",
           color: "#1d2a1f",
-          formatter: (v) => (sinDato ? "—" : v.toFixed(decimales).replace(".", ",") + " " + unidad),
+          formatter: (v) => (sinDato ? "—" : v.toFixed(decimales).replace(".", sep) + " " + unidad),
         },
         data: [{ value: sinDato ? min : Math.max(min, Math.min(max, valor)) }],
       }],
     });
-  }, [valor, min, max, color, unidad, decimales]);
+  }, [valor, min, max, color, unidad, decimales, sep]);
 
   return (
     <div className="medidor">

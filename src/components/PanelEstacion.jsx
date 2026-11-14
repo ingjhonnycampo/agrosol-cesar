@@ -1,14 +1,16 @@
 import { useState } from "react";
 import Mapa from "./Mapa.jsx";
 import Galeria from "./Galeria.jsx";
-
-const grados = (v, pos, neg) => `${Math.abs(v).toFixed(4).replace(".", ",")}° ${v >= 0 ? pos : neg}`;
+import { useIdioma } from "../i18n/IdiomaContext.jsx";
+import { sepDecimal } from "../lib/num.js";
 
 // Elige la estación y muestra dónde está. Tocar el punto del mapa (o el botón) abre sus fotos.
 export default function PanelEstacion({ estaciones, activa, onElegir }) {
+  const { t, locale } = useIdioma();
   const [verFotos, setVerFotos] = useState(false);
   const e = estaciones.find((x) => x.id === activa) || estaciones[0];
   const nFotos = e.fotos?.length || 0;
+  const grados = (v, pos, neg) => `${Math.abs(v).toFixed(4).replace(".", sepDecimal())}° ${t(v >= 0 ? pos : neg)}`;
 
   const elegirDesdeMapa = (id) => {
     onElegir(id);
@@ -30,15 +32,15 @@ export default function PanelEstacion({ estaciones, activa, onElegir }) {
         <h3>📍 {e.nombre}</h3>
         <p>{e.lugar}</p>
         <ul>
-          <li><b>Latitud:</b> {grados(e.lat, "N", "S")}</li>
-          <li><b>Longitud:</b> {grados(e.lon, "E", "O")}</li>
-          {e.altitud !== null && <li><b>Altitud:</b> {e.altitud} m</li>}
-          {e.cultivo && <li><b>Cultivo:</b> {e.cultivo}</li>}
-          <li><b>Instalada:</b> {new Date(e.instalada + "T12:00:00").toLocaleDateString("es-CO", { day: "numeric", month: "long", year: "numeric" })}</li>
+          <li><b>{t("est.lat")}:</b> {grados(e.lat, "est.N", "est.S")}</li>
+          <li><b>{t("est.lon")}:</b> {grados(e.lon, "est.E", "est.O")}</li>
+          {e.altitud !== null && <li><b>{t("est.alt")}:</b> {e.altitud} m</li>}
+          {e.cultivo && <li><b>{t("est.cultivo")}:</b> {e.cultivo}</li>}
+          <li><b>{t("est.instalada")}:</b> {new Date(e.instalada + "T12:00:00").toLocaleDateString(locale, { day: "numeric", month: "long", year: "numeric" })}</li>
         </ul>
         {nFotos > 0 && (
           <button type="button" className="boton boton-fotos" onClick={() => setVerFotos(true)}>
-            📷 Ver fotos de la estación ({nFotos})
+            {t("est.verFotos", { n: nFotos })}
           </button>
         )}
       </div>

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
+import { useIdioma } from "../i18n/IdiomaContext.jsx";
 import "leaflet/dist/leaflet.css";
 
 const estilo = (activa) => ({
@@ -9,6 +10,8 @@ const estilo = (activa) => ({
 
 // Mapa con un punto por estación (OpenStreetMap, gratis). Tocar un punto elige la estación.
 export default function Mapa({ estaciones, activa, onElegir }) {
+  const { t } = useIdioma();
+  const textoFotos = t("est.tooltipFotos");
   const ref = useRef(null);
   const mapa = useRef(null);
   const marcas = useRef({});
@@ -22,7 +25,7 @@ export default function Mapa({ estaciones, activa, onElegir }) {
     }).addTo(m);
     estaciones.forEach((e) => {
       const c = L.circleMarker([e.lat, e.lon], estilo(false)).addTo(m)
-        .bindTooltip(e.nombre + (e.fotos?.length ? " · 📷 toca para ver fotos" : ""));
+        .bindTooltip(e.nombre + (e.fotos?.length ? " · " + textoFotos : ""));
       c.on("click", () => elegir.current(e.id));
       marcas.current[e.id] = c;
     });
@@ -31,7 +34,7 @@ export default function Mapa({ estaciones, activa, onElegir }) {
     if (estaciones.length > 1) m.fitBounds(estaciones.map((e) => [e.lat, e.lon]), { padding: [40, 40] });
     mapa.current = m;
     return () => { m.remove(); mapa.current = null; marcas.current = {}; };
-  }, [estaciones]);
+  }, [estaciones, textoFotos]);
 
   useEffect(() => {
     Object.entries(marcas.current).forEach(([id, c]) => {

@@ -1,5 +1,6 @@
 // Filtros por fecha y resúmenes sobre las filas ya limpias. Los días son "AAAA-MM-DD" en hora de Colombia.
 import { CONFIG, diaLocal } from "./limpieza.js";
+import { sepDecimal } from "./num.js";
 
 const r1 = (v) => Math.round(v * 10) / 10;
 const validos = (filas, k) => filas.map((f) => f[k]).filter((v) => v !== null && v !== undefined);
@@ -86,7 +87,7 @@ export function resumenRango(dias) {
 // Hora de Colombia "escrita como si fuera UTC", para graficar con useUTC: true
 export const xLocal = (iso) => new Date(iso).getTime() + CONFIG.zonaHoraria * 3600000;
 
-export const coma = (v, dec = 1) => (v === null || v === undefined ? "—" : Number(v).toFixed(dec).replace(".", ","));
+export const coma = (v, dec = 1) => (v === null || v === undefined ? "—" : Number(v).toFixed(dec).replace(".", sepDecimal()));
 
 export const fechaCorta = (dia) =>
   new Date(msDia(dia)).toLocaleDateString("es-CO", { timeZone: "UTC", day: "numeric", month: "short" });

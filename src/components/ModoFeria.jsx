@@ -4,32 +4,33 @@ import Medidores from "./Medidores.jsx";
 import Mapa from "./Mapa.jsx";
 import { ComparacionesMes } from "./Nasa.jsx";
 import { COLORES_NIVEL } from "../lib/semaforo.js";
+import { useIdioma } from "../i18n/IdiomaContext.jsx";
 
 const SEGUNDOS = 12;
-const TITULOS = ["El cultivo hoy", "¿Qué necesita?", "Lo que mide la estación", "Nuestra estación", "Frente a la NASA", "Llévala en tu celular"];
+const TOTAL = 6;
 
 // Pantalla completa que cambia sola cada 12 segundos, para dejarla corriendo en la feria.
 // Tocar la pantalla pasa a la siguiente; la ✕ o Esc la cierran.
 export default function ModoFeria({ datos, estacion, resumen, todas, onSalir }) {
+  const { t } = useIdioma();
   const [i, setI] = useState(0);
   const [nasa, setNasa] = useState(null);
-  const total = TITULOS.length;
   const u = datos.ultimo;
 
   useEffect(() => {
-    const t = setTimeout(() => setI((x) => (x + 1) % total), SEGUNDOS * 1000);
-    return () => clearTimeout(t); // al cambiar de diapositiva (sola o a mano) el reloj vuelve a empezar
-  }, [i, total]);
+    const id = setTimeout(() => setI((x) => (x + 1) % TOTAL), SEGUNDOS * 1000);
+    return () => clearTimeout(id); // al cambiar de diapositiva (sola o a mano) el reloj vuelve a empezar
+  }, [i]);
 
   useEffect(() => {
     const tecla = (e) => {
       if (e.key === "Escape") onSalir();
-      else if (e.key === "ArrowRight") setI((x) => (x + 1) % total);
-      else if (e.key === "ArrowLeft") setI((x) => (x - 1 + total) % total);
+      else if (e.key === "ArrowRight") setI((x) => (x + 1) % TOTAL);
+      else if (e.key === "ArrowLeft") setI((x) => (x - 1 + TOTAL) % TOTAL);
     };
     window.addEventListener("keydown", tecla);
     return () => window.removeEventListener("keydown", tecla);
-  }, [onSalir, total]);
+  }, [onSalir]);
 
   useEffect(() => {
     let vivo = true;
@@ -43,10 +44,10 @@ export default function ModoFeria({ datos, estacion, resumen, todas, onSalir }) 
   const color = COLORES_NIVEL[resumen?.nivel] || COLORES_NIVEL.gris;
 
   return (
-    <div className="feria" onClick={() => setI((x) => (x + 1) % total)}>
-      <button type="button" className="feria-salir" onClick={(e) => { e.stopPropagation(); onSalir(); }} aria-label="Salir del modo feria">✕</button>
-      <p className="feria-marca">🌱 AgroSol Cesar · {estacion.lugar}</p>
-      <h2 className="feria-titulo">{TITULOS[i]}</h2>
+    <div className="feria" onClick={() => setI((x) => (x + 1) % TOTAL)}>
+      <button type="button" className="feria-salir" onClick={(e) => { e.stopPropagation(); onSalir(); }} aria-label={t("feria.salir")}>✕</button>
+      <p className="feria-marca">{t("feria.marca", { lugar: estacion.lugar })}</p>
+      <h2 className="feria-titulo">{t("feria.t" + i)}</h2>
 
       <div className="feria-cuerpo" key={i}>
         {i === 0 && resumen && (
@@ -65,18 +66,18 @@ export default function ModoFeria({ datos, estacion, resumen, todas, onSalir }) 
             <Mapa estaciones={[estacion]} activa={estacion.id} onElegir={() => {}} />
           </div>
         )}
+        {i === 4 && (nasa ? <ComparacionesMes nasa={nasa} todas={todas} /> : <p className="vacio">{t("feria.nasa")}</p>)}
         {i === 5 && (
           <div className="feria-qr">
-            <img src="/qr-agrosol.svg" alt="Código QR de AgroSol Cesar" />
-            <p>Escanea con la cámara de tu celular y mira la estación en vivo</p>
+            <img src="/qr-agrosol.svg" alt={t("feria.qrAlt")} />
+            <p>{t("feria.qr")}</p>
             <b>agrosol-cesar.vercel.app</b>
           </div>
         )}
-        {i === 4 && (nasa ? <ComparacionesMes nasa={nasa} todas={todas} /> : <p className="vacio">Consultando a la NASA…</p>)}
       </div>
 
       <div className="feria-pie">
-        {Array.from({ length: total }).map((_, k) => <span key={k} className={"feria-punto" + (k === i ? " on" : "")} />)}
+        {Array.from({ length: TOTAL }).map((_, k) => <span key={k} className={"feria-punto" + (k === i ? " on" : "")} />)}
         <div className="feria-barra"><i key={i} style={{ animationDuration: SEGUNDOS + "s" }} /></div>
       </div>
     </div>

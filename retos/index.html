@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¿Quién quiere ser 100? · Retos micro:bit y Arduino</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="bg-glow"></div>
+
+<button id="btn-musica" class="icon-btn musica" title="Música ON/OFF" aria-label="Música">🔊</button>
+
+<!-- ============ INICIO ============ -->
+<section id="pantalla-inicio" class="pantalla activa">
+  <div class="logo">
+    <div class="rombo">?</div>
+    <h1>¿Quién quiere ser <span>100</span>?</h1>
+    <p class="sub">Retos de <b>micro:bit</b> y <b>Arduino Uno</b> · 14 preguntas · cada acierto asegura tu nota</p>
+  </div>
+
+  <form id="form-registro" class="tarjeta" autocomplete="off">
+    <label for="nombre">Tu nombre completo</label>
+    <input id="nombre" type="text" maxlength="60" placeholder="Ej: Ana María Pérez" required minlength="2">
+
+    <label>Elige tu reto</label>
+    <div class="modos">
+      <label class="modo"><input type="radio" name="modo" value="mixto" checked><span><b>Mixto</b><small>7 de micro:bit + 7 de Arduino</small></span></label>
+      <label class="modo"><input type="radio" name="modo" value="microbit"><span><b>micro:bit</b><small>100 retos de bloques y Python</small></span></label>
+      <label class="modo"><input type="radio" name="modo" value="arduino"><span><b>Arduino Uno</b><small>100 retos de electrónica y C++</small></span></label>
+    </div>
+
+    <button type="submit" class="btn-oro" id="btn-comenzar">¡Comenzar el reto!</button>
+    <button type="button" class="btn-link" id="btn-ver-ranking">🏆 Ver ranking</button>
+    <p id="msg-registro" class="aviso" hidden></p>
+  </form>
+
+  <div class="escala-previa">
+    <span>Notas aseguradas:</span>
+    <b>10 · 15 · 20 · 25 · 30 · 40 · 50 · 60 · 70 · 80 · 85 · 90 · 95 · 100</b>
+  </div>
+</section>
+
+<!-- ============ JUEGO ============ -->
+<section id="pantalla-juego" class="pantalla">
+  <div class="juego">
+    <main>
+      <div class="barra-sup">
+        <div class="jugador">👤 <span id="j-nombre"></span> <em id="j-modo"></em></div>
+        <span id="chip-offline" class="chip-warn" hidden>⚠ Sin conexión a la BD</span>
+      </div>
+
+      <div class="ayudas">
+        <div id="reloj" class="reloj" title="Tiempo restante"><span id="reloj-n">60</span></div>
+        <button class="ayuda" id="ay-5050" title="Eliminar dos respuestas incorrectas"><span>50:50</span><small>Eliminar 2</small></button>
+        <button class="ayuda" id="ay-publico" title="Consultar al público"><span>👥</span><small>Público</small></button>
+        <button class="ayuda" id="ay-llamada" title="Llamada a un amigo (simulación)"><span>📞</span><small>Llamada</small></button>
+      </div>
+
+      <div class="pregunta-box">
+        <div class="meta"><span id="q-num">Pregunta 1/14</span><span id="q-tema" class="tema">micro:bit</span><span id="q-nota" class="nota-chip">Nota en juego: 10</span></div>
+        <h2 id="q-texto"></h2>
+      </div>
+
+      <div class="respuestas" id="respuestas"></div>
+    </main>
+
+    <aside>
+      <h3>Escalera de notas</h3>
+      <ol id="escalera" class="escalera"></ol>
+      <h3>Tu desempeño</h3>
+      <div id="grafico-vivo" class="grafico"></div>
+    </aside>
+  </div>
+</section>
+
+<!-- ============ FIN ============ -->
+<section id="pantalla-fin" class="pantalla">
+  <div class="fin tarjeta">
+    <div id="fin-emoji" class="fin-emoji">🏆</div>
+    <h2 id="fin-titulo"></h2>
+    <p id="fin-msg" class="sub"></p>
+    <div class="nota-grande"><small>Nota asegurada</small><span id="fin-nota">0</span></div>
+    <div class="stats" id="fin-stats"></div>
+    <h3>Desempeño por pregunta</h3>
+    <div class="graficos-fin">
+      <div><small>Nota alcanzada</small><div id="grafico-fin-nota" class="grafico"></div></div>
+      <div><small>Tiempo por pregunta (seg)</small><div id="grafico-fin-tiempo" class="grafico"></div></div>
+    </div>
+    <div class="acciones">
+      <button class="btn-oro" id="btn-otra">Jugar de nuevo</button>
+      <button class="btn-link" id="btn-ranking-fin">🏆 Ver ranking</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MODALES ============ -->
+<div id="modal" class="modal" hidden>
+  <div class="modal-caja">
+    <h3 id="modal-titulo"></h3>
+    <div id="modal-cuerpo"></div>
+    <button class="btn-oro" id="modal-cerrar">Cerrar</button>
+  </div>
+</div>
+
+<script src="preguntas.js"></script>
+<script src="juego.js"></script>
+</body>
+</html>

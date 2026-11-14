@@ -1,0 +1,97 @@
+// Recursos que la NASA entrega para el reto "Field Shift: Adapting Farms with NASA Data" (Space Apps 2026).
+// Fuente: https://www.spaceappschallenge.org/2026/challenges/adapting-farms-with-nasa-data/?tab=resources
+// estado: "vivo" = la página lee ese dato en vivo · "usado" = el modelo ya lo usa · "cuenta" = requiere cuenta gratuita
+// (Earthdata u otra) para bajar los datos · "eeuu" = cubre solo Estados Unidos, se indica la alternativa para Colombia.
+
+export const URL_RETO = "https://www.spaceappschallenge.org/2026/challenges/adapting-farms-with-nasa-data/?tab=resources";
+
+export const ESTADOS = {
+  vivo: { nombre: "Se lee en vivo aquí", color: "#2f9e4f" },
+  usado: { nombre: "Ya lo usa el modelo", color: "#1b5e87" },
+  cuenta: { nombre: "Requiere cuenta gratuita", color: "#e8a317" },
+  eeuu: { nombre: "Solo cubre EE. UU.", color: "#9aa5a0" },
+};
+
+export const RECURSOS = [
+  // ----- NASA -----
+  { id: "smap", nombre: "SMAP — Soil Moisture Active Passive", org: "NASA", estado: "vivo", url: "https://smap.jpl.nasa.gov/",
+    que: "Humedad del suelo de la superficie en todo el planeta, cada 2 o 3 días.",
+    uso: "Se ve como capa en el mapa de esta pestaña (humedad de la superficie y de la zona de raíces). Para bajar los datos numéricos hace falta una cuenta Earthdata." },
+  { id: "imerg", nombre: "GPM / IMERG — lluvia por satélite", org: "NASA", estado: "vivo", url: "https://gpm.nasa.gov/data/imerg",
+    que: "Intensidad y cantidad de lluvia estimadas por satélite.",
+    uso: "Se ve como capa en el mapa. Sirve para comparar con nuestro pluviómetro." },
+  { id: "landsat", nombre: "Landsat (30 m)", org: "NASA / USGS", estado: "cuenta", url: "https://landsat.gsfc.nasa.gov/",
+    que: "Imágenes de 30 metros para medir el vigor de las plantas, el suelo desnudo y los cambios de temporada.",
+    uso: "Se consulta en Worldview o Earthdata Search; los datos de alta resolución se bajan con cuenta." },
+  { id: "modis", nombre: "MODIS / VIIRS — vegetación (NDVI)", org: "NASA", estado: "vivo", url: "https://modis.gsfc.nasa.gov/",
+    que: "Reflectancia, NDVI y temperatura de la superficie cada pocos días (250 m a 1 km).",
+    uso: "Se ven como capas en el mapa: NDVI, temperatura de la superficie y color real." },
+  { id: "power", nombre: "NASA POWER — agroclimatología", org: "NASA", estado: "usado", url: "https://power.larc.nasa.gov/",
+    que: "Temperatura, lluvia, humedad del suelo y radiación solar para cualquier punto.",
+    uso: "Es la base del modelo: 25 años de clima, comparación con la estación y calendario de siembra (pestañas NASA y Rotación)." },
+  { id: "srtm", nombre: "SRTM — elevación y relieve", org: "NASA", estado: "vivo", url: "https://www2.jpl.nasa.gov/srtm/",
+    que: "Altura del terreno en todo el planeta, de la que se saca la pendiente.",
+    uso: "Se lee en vivo la altura y la pendiente del punto de la estación (más abajo)." },
+  { id: "ecostress", nombre: "ECOSTRESS — temperatura y evapotranspiración", org: "NASA", estado: "cuenta", url: "https://ecostress.jpl.nasa.gov/",
+    que: "Temperatura de la superficie y agua que pierden las plantas, con alta resolución.",
+    uso: "Los datos se bajan con cuenta Earthdata. Como referencia, el mapa trae la temperatura de la superficie de MODIS." },
+  { id: "gedi", nombre: "GEDI — estructura de la vegetación", org: "NASA", estado: "cuenta", url: "https://gedi.umd.edu/",
+    que: "Altura del dosel y biomasa medidas con láser desde el espacio; sirve sobre todo en zonas de árboles altos.",
+    uso: "Datos con cuenta Earthdata. Poco útil en un cultivo bajo; sirve para el paisaje que lo rodea." },
+  { id: "gldas", nombre: "NLDAS / GLDAS — asimilación de datos de la superficie", org: "NASA", estado: "cuenta", url: "https://ldas.gsfc.nasa.gov/",
+    que: "Series continuas de temperatura, lluvia, humedad del suelo y evapotranspiración. GLDAS es global; NLDAS solo cubre EE. UU.",
+    uso: "Se busca en Earthdata Search; requiere cuenta." },
+  // ----- USDA y otras agencias de EE. UU. -----
+  { id: "agdc", nombre: "USDA Ag Data Commons", org: "USDA", estado: "cuenta", url: "https://agdatacommons.nal.usda.gov/",
+    que: "Conjuntos de datos abiertos de suelos, cultivos, clima y manejo agrícola.",
+    uso: "Abierto y gratuito, pero la mayoría son de EE. UU.; sirve como referencia metodológica.", alternativa: "Datos abiertos de Colombia (datos.gov.co)", altUrl: "https://www.datos.gov.co/" },
+  { id: "wss", nombre: "Web Soil Survey (WSS)", org: "USDA-NRCS", estado: "eeuu", url: "https://websoilsurvey.nrcs.usda.gov/",
+    que: "Mapas de suelos de EE. UU.: textura, drenaje, materia orgánica y erosión.",
+    uso: "No cubre Colombia.", alternativa: "Estudios de suelos del IGAC y análisis de laboratorio (pestaña Suelo)", altUrl: "https://www.igac.gov.co/" },
+  { id: "cdl", nombre: "Cropland Data Layer (CropScape)", org: "USDA-NASS", estado: "eeuu", url: "https://nassgeodata.gmu.edu/CropScape/",
+    que: "Mapa anual de qué cultivo hay en cada lote de EE. UU.",
+    uso: "No cubre Colombia.", alternativa: "Evaluaciones Agropecuarias (EVA) de la UPRA", altUrl: "https://upra.gov.co/" },
+  { id: "prism", nombre: "PRISM Climate Data", org: "Oregon State University", estado: "eeuu", url: "https://prism.oregonstate.edu/",
+    que: "Clima diario y normales de 30 años de EE. UU.",
+    uso: "No cubre Colombia; para esto usamos NASA POWER.", alternativa: "Estaciones del IDEAM y NASA POWER", altUrl: "https://www.ideam.gov.co/" },
+  { id: "ssurgo", nombre: "SSURGO / STATSGO2", org: "USDA-NRCS", estado: "eeuu", url: "https://www.nrcs.usda.gov/resources/data-and-reports/soil-survey-geographic-database-ssurgo",
+    que: "Atributos detallados del suelo de EE. UU.: textura, retención de agua, drenaje.",
+    uso: "No cubre Colombia.", alternativa: "IGAC y nuestro estudio de suelo", altUrl: "https://www.igac.gov.co/" },
+  { id: "naip", nombre: "NAIP — imágenes aéreas de 1 m", org: "USDA", estado: "eeuu", url: "https://naip-usdaonline.hub.arcgis.com/",
+    que: "Fotografías aéreas de alta resolución de EE. UU.",
+    uso: "No cubre Colombia.", alternativa: "Sentinel-2 (10 m, gratuito y global)", altUrl: "https://dataspace.copernicus.eu/" },
+  { id: "nlcd", nombre: "NLCD — cobertura del suelo", org: "USGS", estado: "eeuu", url: "https://www.mrlc.gov/",
+    que: "Clasificación de cobertura y uso del suelo de EE. UU.",
+    uso: "No cubre Colombia.", alternativa: "Mapa de cobertura de la tierra (Corine Land Cover) del IDEAM", altUrl: "https://www.ideam.gov.co/" },
+  { id: "gaez", nombre: "FAO GAEZ — aptitud agroecológica", org: "FAO", estado: "cuenta", url: "https://gaez.fao.org/",
+    que: "Mapas globales de qué tan apto es cada lugar para decenas de cultivos, con potencial de rendimiento.",
+    uso: "Es global y gratuito: sirve para contrastar nuestra tabla de cultivos con la de la FAO." },
+  { id: "cocorahs", nombre: "CoCoRaHS — lluvia colaborativa", org: "Colorado State University", estado: "eeuu", url: "https://www.cocorahs.org/",
+    que: "Medidas diarias de lluvia hechas por voluntarios en Norteamérica.",
+    uso: "No cubre Colombia: nuestro pluviómetro cumple esa función.", alternativa: "Pluviómetro de la estación e IDEAM", altUrl: "https://www.ideam.gov.co/" },
+  { id: "nwis", nombre: "USGS NWIS — agua subterránea y ríos", org: "USGS", estado: "eeuu", url: "https://waterdata.usgs.gov/nwis",
+    que: "Niveles de agua subterránea y caudales de ríos de EE. UU.",
+    uso: "No cubre Colombia.", alternativa: "Datos hidrológicos del IDEAM", altUrl: "https://www.ideam.gov.co/" },
+  { id: "ams", nombre: "USDA AMS Market News — precios", org: "USDA", estado: "eeuu", url: "https://www.ams.usda.gov/market-news",
+    que: "Precios y demanda de cultivos en EE. UU.",
+    uso: "No cubre Colombia; el valor de mercado del modelo es una estimación del equipo.", alternativa: "SIPSA del DANE (precios mayoristas)", altUrl: "https://www.dane.gov.co/index.php/estadisticas-por-tema/agropecuario/sistema-de-informacion-de-precios-sipsa" },
+  { id: "nass", nombre: "USDA NASS QuickStats", org: "USDA", estado: "eeuu", url: "https://quickstats.nass.usda.gov/",
+    que: "Rendimientos, áreas sembradas y producción histórica de EE. UU.",
+    uso: "No cubre Colombia.", alternativa: "Agronet (Ministerio de Agricultura)", altUrl: "https://www.agronet.gov.co/" },
+  { id: "openet", nombre: "OpenET — evapotranspiración", org: "OpenET", estado: "eeuu", url: "https://openetdata.org/",
+    que: "Agua que gastan los cultivos, lote por lote, en el oeste de EE. UU.",
+    uso: "No cubre Colombia: el modelo usa las necesidades de agua de cada cultivo (referencia FAO).", alternativa: "ECOSTRESS y MODIS", altUrl: "https://ecostress.jpl.nasa.gov/" },
+  { id: "landfire", nombre: "LANDFIRE — vegetación y combustibles", org: "USFS", estado: "eeuu", url: "https://landfire.gov/",
+    que: "Tipos de vegetación y paisaje de EE. UU.",
+    uso: "No cubre Colombia.", alternativa: "Mapa de ecosistemas del IDEAM", altUrl: "https://www.ideam.gov.co/" },
+  // ----- ESA -----
+  { id: "sentinel2", nombre: "Copernicus Sentinel-2 (10 a 20 m)", org: "ESA", estado: "cuenta", url: "https://dataspace.copernicus.eu/",
+    que: "Imágenes multiespectrales de 10 m cada pocos días, ideales para vigor de cultivos y suelo desnudo.",
+    uso: "Gratuito y global; el visor de Copernicus permite ver Bosconia sin cuenta, y para bajar datos hace falta registrarse." },
+  { id: "era5", nombre: "ERA5 — reanálisis climático", org: "ECMWF / ESA", estado: "vivo", url: "https://cds.climate.copernicus.eu/",
+    que: "Clima hora a hora de todo el planeta: temperatura, lluvia y humedad del suelo.",
+    uso: "Se lee en vivo (a través de Open-Meteo) y se compara con la estación y con la NASA." },
+];
+
+export const URL_EARTHDATA = "https://search.earthdata.nasa.gov/";
+export const URL_WORLDVIEW = "https://worldview.earthdata.nasa.gov/";

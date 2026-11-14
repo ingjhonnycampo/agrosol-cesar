@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { evaluarSemaforo } from "../lib/semaforo.js";
-
-const ETIQUETA = { verde: "Todo bien", amarillo: "Atención", rojo: "Actuar", gris: "Sin datos" };
+import { evaluarSemaforo, UMBRALES } from "../lib/semaforo.js";
+import { useIdioma } from "../i18n/IdiomaContext.jsx";
 
 // Tres tarjetas con luz de semáforo. Se tocan para ver el porqué.
 export default function Semaforo({ datos, abiertas = false }) {
+  const { t } = useIdioma();
   const [abierta, setAbierta] = useState(null);
-  const alertas = evaluarSemaforo(datos);
+  const alertas = evaluarSemaforo(datos, UMBRALES, t);
   if (!alertas.length) return null;
 
   return (
@@ -23,7 +23,7 @@ export default function Semaforo({ datos, abiertas = false }) {
           <span className="luz-texto">
             <span className="luz-pregunta">{a.titulo}</span>
             <strong className="luz-mensaje">{a.mensaje}</strong>
-            <span className="luz-etiqueta">{ETIQUETA[a.nivel]}</span>
+            <span className="luz-etiqueta">{t("sem.etq." + a.nivel)}</span>
           </span>
           <span className="luz-detalle">{a.detalle}</span>
         </button>

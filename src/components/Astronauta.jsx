@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useIdioma } from "../i18n/IdiomaContext.jsx";
 
 const ESTRELLAS = 8;
 
@@ -15,6 +16,7 @@ export function animoDe(ambiente) {
 // suelta estrellitas y dice algo. Duerme de noche, y reacciona: paraguas con lluvia,
 // sudando con calor, preocupado cuando hay que regar.
 export default function Astronauta({ mensajes, dormido, animo = "feliz" }) {
+  const { t } = useIdioma();
   const [n, setN] = useState(0);        // cuántas veces lo han tocado
   const [frase, setFrase] = useState("");
   const temporizador = useRef(null);
@@ -33,7 +35,7 @@ export default function Astronauta({ mensajes, dormido, animo = "feliz" }) {
 
   return (
     <div className="astronauta-zona">
-      <button type="button" className={"astronauta animo-" + animo + (dormido ? " dormido" : "")} onClick={tocar} aria-label="Toca al astronauta">
+      <button type="button" className={"astronauta animo-" + animo + (dormido ? " dormido" : "")} onClick={tocar} aria-label={t("astro.aria")}>
         <span className="astronauta-flota">
           <span key={n} className={"astronauta-giro" + (n ? " giro" : "")}>
             <svg viewBox="0 -26 100 150" width="100%" aria-hidden="true">

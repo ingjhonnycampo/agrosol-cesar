@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { useIdioma } from "../i18n/IdiomaContext.jsx";
 
-const REVISION = ["Sensores de suelo", "Pluviómetro", "Anemómetro", "Fotocelda y hoja", "Enlace con la NASA"];
+const REVISION = ["intro.rev1", "intro.rev2", "intro.rev3", "intro.rev4", "intro.rev5"];
 const ESTRELLAS = Array.from({ length: 70 }, (_, i) => ({
   x: (i * 53) % 100, y: (i * 37) % 88, s: 1 + (i % 3), d: (i % 9) * 0.35,
 }));
@@ -12,6 +13,7 @@ const ESPERA_MAX = 12000; // si los datos tardan demasiado, despega igual
 // cualquier parte de la pantalla (si el rugido ya había empezado, se lanza en ese momento).
 // No despega hasta que los datos de la estación estén listos. Tocar el cohete lo sacude.
 export default function Intro({ listo, onTerminar }) {
+  const { t } = useIdioma();
   const [n, setN] = useState(5);                  // 5..1 cuenta, 0 = ignición
   const [fase, setFase] = useState("cuenta");     // cuenta | ignicion | despegue
   const faseRef = useRef("cuenta");
@@ -169,7 +171,7 @@ export default function Intro({ listo, onTerminar }) {
   const cuentaActiva = fase === "cuenta" || fuego;
 
   return (
-    <div className={"intro" + (sale ? " intro-sale" : "") + (fase === "ignicion" ? " intro-tiembla" : "")} role="dialog" aria-label="Cuenta regresiva de despegue">
+    <div className={"intro" + (sale ? " intro-sale" : "") + (fase === "ignicion" ? " intro-tiembla" : "")} role="dialog" aria-label={t("intro.aria")}>
       {fase === "ignicion" && <div className="intro-flash" key="flash" />}
       <div className="intro-estrellas" aria-hidden="true">
         {ESTRELLAS.map((e, i) => (
@@ -178,11 +180,11 @@ export default function Intro({ listo, onTerminar }) {
       </div>
 
       <div className="intro-barra">
-        <span>🌱 AgroSol Cesar · Galactic Devs</span>
+        <span>{t("intro.marca")}</span>
         <span className="intro-botones">
-          <button type="button" onClick={() => setSonido((s) => !s)} aria-pressed={sonido}>{sonido ? "🔊 Sonido" : "🔇 Silencio"}</button>
-          <button type="button" onClick={(e) => { e.stopPropagation(); onTerminar({ feria: true }); }}>📺 Modo feria</button>
-          <button type="button" onClick={() => onTerminar()}>Saltar ▸</button>
+          <button type="button" onClick={() => setSonido((s) => !s)} aria-pressed={sonido}>{sonido ? t("intro.sonido") : t("intro.silencio")}</button>
+          <button type="button" onClick={(e) => { e.stopPropagation(); onTerminar({ feria: true }); }}>{t("intro.feria")}</button>
+          <button type="button" onClick={() => onTerminar()}>{t("intro.saltar")}</button>
         </span>
       </div>
 
@@ -196,15 +198,15 @@ export default function Intro({ listo, onTerminar }) {
             <b>{n}</b>
           </div>
         )}
-        {fase === "ignicion" && <div className="intro-ignicion">¡IGNICIÓN!</div>}
-        {despega && <div className="intro-ignicion intro-adios">¡DESPEGUE! 🚀</div>}
+        {fase === "ignicion" && <div className="intro-ignicion">{t("intro.ignicion")}</div>}
+        {despega && <div className="intro-ignicion intro-adios">{t("intro.despegue")}</div>}
         <p className="intro-estado">
-          {fase === "cuenta" && (n > 1 ? "Revisando los sistemas de la estación…" : "Todo listo. Encendiendo motores…")}
-          {fase === "ignicion" && (listo || esperaAgotada || !ignicionLista ? "Motores encendidos" : "Esperando los datos de la estación…")}
-          {despega && "¡Rumbo a la huerta!"}
+          {fase === "cuenta" && (n > 1 ? t("intro.revisando") : t("intro.todoListo"))}
+          {fase === "ignicion" && (listo || esperaAgotada || !ignicionLista ? t("intro.motores") : t("intro.esperando"))}
+          {despega && t("intro.rumbo")}
         </p>
         <ul className="intro-lista">
-          {REVISION.map((r, i) => <li key={r} className={i < revisados ? "ok" : ""}>{i < revisados ? "✓" : "·"} {r}</li>)}
+          {REVISION.map((r, i) => <li key={r} className={i < revisados ? "ok" : ""}>{i < revisados ? "✓" : "·"} {t(r)}</li>)}
         </ul>
       </div>
 
@@ -217,7 +219,7 @@ export default function Intro({ listo, onTerminar }) {
 
       <button type="button" className={"intro-cohete" + (despega ? " vuela" : "") + (fuego ? " fuego" : "") + (sacudir ? " sacude" : "")}
         key={"c" + sacudir} onClick={(e) => { e.stopPropagation(); setSacudir((s) => s + 1); pitar(1200, 0.12, "triangle", 0.08); }}
-        aria-label="Toca el cohete">
+        aria-label={t("intro.cohete")}>
         <svg viewBox="0 0 100 190" aria-hidden="true">
           <g className="llama">
             <path d="M36 128 Q50 196 64 128 Z" fill="#ff7a1a" />
@@ -240,8 +242,8 @@ export default function Intro({ listo, onTerminar }) {
         )}
       </button>
       {bloqueado && sonido
-        ? <p className="intro-pista intro-sin-sonido">🔇 Toca la pantalla para activar el sonido</p>
-        : cuentaActiva && fase === "cuenta" && <p className="intro-pista">Toca el cohete 👆</p>}
+        ? <p className="intro-pista intro-sin-sonido">{t("intro.sinSonido")}</p>
+        : cuentaActiva && fase === "cuenta" && <p className="intro-pista">{t("intro.pista")}</p>}
     </div>
   );
 }

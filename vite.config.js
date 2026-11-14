@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
         configureServer(server) {
           server.middlewares.use("/api", async (req, res) => {
             const nombre = (req.url || "").split("?")[0].replace(/^\/+/, "");
-            if (!["datos", "nasa"].includes(nombre)) { res.statusCode = 404; return res.end("No existe"); }
+            if (!["datos", "nasa", "elevacion"].includes(nombre)) { res.statusCode = 404; return res.end("No existe"); }
             const { default: handler } = await server.ssrLoadModule(`/api/${nombre}.js`);
             const r = {
               status(c) { res.statusCode = c; return r; },

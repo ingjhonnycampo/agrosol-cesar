@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Cielo from "./components/Cielo.jsx";
 import Medidores from "./components/Medidores.jsx";
 import Resumen from "./components/Resumen.jsx";
@@ -6,6 +6,7 @@ import ModoFeria from "./components/ModoFeria.jsx";
 import ComoFunciona from "./components/ComoFunciona.jsx";
 import Logo from "./components/Logo.jsx";
 import Intro from "./components/Intro.jsx";
+import SelectorIdioma from "./components/SelectorIdioma.jsx";
 import Semaforo from "./components/Semaforo.jsx";
 import PanelEstacion from "./components/PanelEstacion.jsx";
 import FiltroFechas from "./components/FiltroFechas.jsx";
@@ -14,6 +15,7 @@ import ResumenDias from "./components/ResumenDias.jsx";
 import Comparar from "./components/Comparar.jsx";
 import Nasa from "./components/Nasa.jsx";
 import Rotacion, { useRecomendacion } from "./components/Rotacion.jsx";
+import Reto from "./components/Reto.jsx";
 import Informe from "./components/Informe.jsx";
 import { useDatosModelo, CONSULTA_INICIAL } from "./lib/useModelo.js";
 import { descripcionPeriodo, urlNasa } from "./lib/climaCsv.js";
@@ -28,41 +30,29 @@ import { ESTACIONES, ESTACION_INICIAL, buscarEstacion } from "./data/estaciones.
 import { diaLocal } from "./lib/limpieza.js";
 import { resumenDia } from "./lib/semaforo.js";
 import { filtrar, hoyLocal, porDia, rangoPreset } from "./lib/analisis.js";
+import { coma } from "./lib/num.js";
+import { useIdioma } from "./i18n/IdiomaContext.jsx";
 
 const CON_FECHAS = ["graficas", "dias", "nasa", "comparar", "calendario", "tabla"]; // vistas que usan el filtro de fechas
 const CADA = 120000; // vuelve a pedir datos cada 2 minutos
 
 const VISTAS = [
-  { id: "ahora", nombre: "Ahora", icono: "⏱️" },
-  { id: "graficas", nombre: "Gráficas", icono: "📈" },
-  { id: "dias", nombre: "Por día", icono: "📊" },
-  { id: "nasa", nombre: "NASA", icono: "🛰️" },
-  { id: "rotacion", nombre: "Rotación", icono: "🌱" },
-  { id: "cultivos", nombre: "Cultivos", icono: "🌽" },
-  { id: "informe", nombre: "Informe", icono: "📄" },
-  { id: "suelo", nombre: "Suelo", icono: "🧪" },
-  { id: "comparar", nombre: "Comparar", icono: "⚖️" },
-  { id: "calendario", nombre: "Calendario", icono: "🗓️" },
-  { id: "tabla", nombre: "Datos", icono: "📋" },
+  { id: "ahora", icono: "⏱️" },
+  { id: "graficas", icono: "📈" },
+  { id: "dias", icono: "📊" },
+  { id: "nasa", icono: "🛰️" },
+  { id: "reto", icono: "🎯" },
+  { id: "rotacion", icono: "🌱" },
+  { id: "cultivos", icono: "🌽" },
+  { id: "informe", icono: "📄" },
+  { id: "suelo", icono: "🧪" },
+  { id: "comparar", icono: "⚖️" },
+  { id: "calendario", icono: "🗓️" },
+  { id: "tabla", icono: "📋" },
 ];
 
-function haceCuanto(iso) {
-  if (!iso) return "";
-  const min = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
-  if (min < 1) return "hace un momento";
-  if (min < 60) return `hace ${min} min`;
-  const h = Math.floor(min / 60);
-  if (h < 24) return `hace ${h} h ${min % 60} min`;
-  return `hace ${Math.floor(h / 24)} días`;
-}
-
-const coma = (v) => String(v).replace(".", ",");
-
-function horaLocal(iso) {
-  return new Date(iso).toLocaleString("es-CO", { timeZone: "America/Bogota", weekday: "long", day: "numeric", month: "long", hour: "numeric", minute: "2-digit" });
-}
-
 export default function App() {
+  const { t, lang, locale } = useIdioma();
   const [estacionId, setEstacionId] = useState(ESTACION_INICIAL);
   const [datos, setDatos] = useState(null);
   const [error, setError] = useState("");
@@ -81,6 +71,9 @@ export default function App() {
     return !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
   });
   const [feria, setFeria] = useState(() => new URLSearchParams(window.location.search).has("feria"));
+  // Después del cohete se elige el idioma; el botón 🌐 del encabezado lo vuelve a abrir
+  const [eligiendo, setEligiendo] = useState(false);
+  const pendienteFeria = useRef(false);
   const abrirFeria = useCallback(() => {
     setFeria(true);
     try { document.documentElement.requestFullscreen?.(); } catch { /* sin pantalla completa, igual funciona */ }
@@ -88,7 +81,12 @@ export default function App() {
   // opciones.feria = la persona eligió "Modo feria" desde la intro
   const terminarIntro = useCallback((opciones) => {
     setIntro(false);
-    if (opciones?.feria) abrirFeria();
+    pendienteFeria.current = !!opciones?.feria;
+    setEligiendo(true);
+  }, []);
+  const cerrarSelector = useCallback(() => {
+    setEligiendo(false);
+    if (pendienteFeria.current) { pendienteFeria.current = false; abrirFeria(); }
   }, [abrirFeria]);
 
   const estacion = buscarEstacion(estacionId);
@@ -119,7 +117,7 @@ export default function App() {
     }
     cargar();
     const a = setInterval(cargar, CADA);
-    const b = setInterval(() => setTic((t) => t + 1), 30000); // refresca el "hace X min"
+    const b = setInterval(() => setTic((n) => n + 1), 30000); // refresca el "hace X min"
     return () => { vivo = false; clearInterval(a); clearInterval(b); };
   }, [estacionId]);
 
@@ -127,6 +125,17 @@ export default function App() {
   const res = datos?.resumen;
   const minutos = u ? (Date.now() - new Date(u.t).getTime()) / 60000 : Infinity;
   const enLinea = minutos < 25;
+
+  const haceCuanto = (iso) => {
+    const min = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+    if (min < 1) return t("tiempo.momento");
+    if (min < 60) return t("tiempo.min", { n: min });
+    const h = Math.floor(min / 60);
+    if (h < 24) return t("tiempo.horas", { h, m: min % 60 });
+    return t("tiempo.dias", { d: Math.floor(h / 24) });
+  };
+  const horaLocal = (iso) =>
+    new Date(iso).toLocaleString(locale, { timeZone: "America/Bogota", weekday: "long", day: "numeric", month: "long", hour: "numeric", minute: "2-digit" });
 
   const todas = datos?.filas;
   const limites = useMemo(() => {
@@ -152,20 +161,20 @@ export default function App() {
   const mensajes = useMemo(() => {
     const m = [];
     if (u) {
-      if (u.temp !== null) m.push(`Ahora el aire está a ${coma(u.temp)} °C 🌡️`);
-      if (u.suelo10 !== null) m.push(`La humedad del suelo a 10 cm va en ${u.suelo10} % 💧`);
-      if (res?.lluviaHoy > 0) m.push(`Hoy ya cayeron ${coma(res.lluviaHoy)} mm de lluvia 🌧️`);
-      else m.push("Hoy no ha llovido en la estación ☀️");
-      if (u.hojaEstado === "seca") m.push("La hoja del cultivo está seca: buen día contra los hongos 🍃");
-      else if (u.hojaEstado !== "sin dato") m.push("La hoja tiene humedad: ojo con los hongos 🍄");
+      if (u.temp !== null) m.push(t("astro.temp", { t: coma(u.temp) }));
+      if (u.suelo10 !== null) m.push(t("astro.suelo", { v: u.suelo10 }));
+      if (res?.lluviaHoy > 0) m.push(t("astro.lluvia", { mm: coma(res.lluviaHoy) }));
+      else m.push(t("astro.sinLluvia"));
+      if (u.hojaEstado === "seca") m.push(t("astro.hojaSeca"));
+      else if (u.hojaEstado !== "sin dato") m.push(t("astro.hojaHumeda"));
     }
-    m.push("Los satélites de la NASA miden la humedad del suelo desde el espacio 🛰️");
-    m.push("Con datos de la NASA y esta estación ayudamos a decidir qué sembrar 🌱");
-    m.push("¡Los estudiantes del colegio construyeron esta estación! 🛠️");
+    m.push(t("astro.nasa"));
+    m.push(t("astro.siembra"));
+    m.push(t("astro.estudiantes"));
     return m;
-  }, [u, res]);
+  }, [u, res, t]);
 
-  const resumenHoy = datos ? resumenDia(datos, estacion.lugar.split(",")[0]) : null;
+  const resumenHoy = datos ? resumenDia(datos, estacion.lugar.split(",")[0], t) : null;
 
   function cerrarFeria() {
     setFeria(false);
@@ -175,17 +184,21 @@ export default function App() {
   return (
     <>
       {intro && <Intro listo={!!datos || !!error} onTerminar={terminarIntro} />}
+      {eligiendo && <SelectorIdioma onElegir={cerrarSelector} onCerrar={cerrarSelector} />}
       <Cielo luz={u?.luz} mensajes={mensajes} ambiente={resumenHoy?.ambiente}>
-        <p className="marca">NASA Space Apps 2026 · {estacion.lugar}</p>
+        <p className="marca">{t("app.marca", { lugar: estacion.lugar })}</p>
         <h1><Logo tam={44} /> AgroSol Cesar</h1>
-        <p className="lema">La estación que escucha al suelo y al cielo</p>
+        <p className="lema">{t("app.lema")}</p>
         {u && (
           <div className={"pastilla " + (enLinea ? "ok" : "off")}>
             <span className="punto" />
-            {enLinea ? "Estación en línea" : "Sin datos recientes"} · último dato {haceCuanto(u.t)}
+            {enLinea ? t("app.enLinea") : t("app.sinDatos")} · {t("app.ultimoDato", { cuando: haceCuanto(u.t) })}
           </div>
         )}
-        {u && <button type="button" className="boton-feria" onClick={abrirFeria}>📺 Modo feria</button>}
+        <div className="cielo-botones">
+          {u && <button type="button" className="boton-feria" onClick={abrirFeria}>{t("app.feria")}</button>}
+          <button type="button" className="boton-feria boton-idioma" onClick={() => setEligiendo(true)} aria-label={t("idioma.cambiar")} title={t("idioma.cambiar")}>🌐 {lang.toUpperCase()}</button>
+        </div>
       </Cielo>
 
       <main>
@@ -195,8 +208,8 @@ export default function App() {
           <PanelEstacion estaciones={ESTACIONES} activa={estacionId} onElegir={setEstacionId} />
         </section>
 
-        {error && !datos && <div className="aviso">No se pudieron traer los datos: {error}</div>}
-        {!datos && !error && <div className="cargando">Conectando con la estación…</div>}
+        {error && !datos && <div className="aviso">{t("app.errorDatos", { e: error })}</div>}
+        {!datos && !error && <div className="cargando">{t("app.cargando")}</div>}
 
         {u && (
           <section>
@@ -204,7 +217,7 @@ export default function App() {
               {VISTAS.map((v) => (
                 <button key={v.id} type="button" role="tab" aria-selected={vista === v.id}
                   className={"pestana" + (vista === v.id ? " on" : "")} onClick={() => setVista(v.id)}>
-                  <span aria-hidden="true">{v.icono}</span> {v.nombre}
+                  <span aria-hidden="true">{v.icono}</span> {t("v." + v.id)}
                 </button>
               ))}
             </nav>
@@ -220,18 +233,18 @@ export default function App() {
             {vista === "ahora" && (
               <>
                 <div className="titulo-seccion">
-                  <h2>¿Qué necesita el cultivo?</h2>
-                  <p>Toca una tarjeta para ver por qué</p>
+                  <h2>{t("app.tituloNecesita")}</h2>
+                  <p>{t("app.tocaTarjeta")}</p>
                 </div>
                 <Semaforo datos={datos} />
 
                 <div className="titulo-seccion">
-                  <h2>Ahora mismo</h2>
+                  <h2>{t("app.ahoraMismo")}</h2>
                   <p>{horaLocal(u.t)}</p>
                 </div>
                 <Medidores u={u} res={res} />
                 <p className="calidad">
-                  {res.totalDatos} mediciones desde el {new Date(res.desde).toLocaleDateString("es-CO", { timeZone: "America/Bogota" })}
+                  {t("app.mediciones", { n: res.totalDatos, fecha: new Date(res.desde).toLocaleDateString(locale, { timeZone: "America/Bogota" }) })}
                 </p>
               </>
             )}
@@ -239,6 +252,7 @@ export default function App() {
             {vista === "graficas" && <Graficas filas={filasRango} />}
             {vista === "dias" && <ResumenDias dias={dias} />}
             {vista === "nasa" && <Nasa estacion={estacion} todas={todas} rango={rango} dias={dias} />}
+            {vista === "reto" && <Reto estacion={estacion} diasEst={diasTodos} />}
             {vista === "rotacion" && <Rotacion estacion={estacion} suelo={suelo} consulta={consulta} onConsulta={setConsulta} modelo={modelo} ap={ap} resultados={resultados} climaInfo={climaInfo} />}
             {vista === "cultivos" && <Cultivos />}
             {vista === "informe" && <Informe estacion={estacion} diasEst={diasTodos} suelo={suelo} consulta={consulta} modelo={modelo} ap={ap} resultados={resultados} proyecto={proyecto} onProyecto={cambiarProyecto} climaInfo={climaInfo} />}
@@ -255,9 +269,7 @@ export default function App() {
         <ModoFeria datos={datos} estacion={estacion} resumen={resumenHoy} todas={todas} onSalir={cerrarFeria} />
       )}
 
-      <footer>
-        Proyecto AgroSol Cesar · Estación micro:bit con sensores de suelo, lluvia, luz y viento · {estacion.lugar}
-      </footer>
+      <footer>{t("app.footer", { lugar: estacion.lugar })}</footer>
     </>
   );
 }

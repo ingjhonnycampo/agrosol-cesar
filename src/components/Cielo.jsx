@@ -1,16 +1,5 @@
 import Astronauta, { animoDe } from "./Astronauta.jsx";
-
-const SALUDO = {
-  dia: "¡Buen día desde la órbita! 🚀 Toca otra vez y te cuento más.",
-  tarde: "¡Mira qué atardecer! 🌅 Toca otra vez para más datos.",
-  noche: "Shhh… la huerta duerme 🌙 Toca otra vez y te cuento algo.",
-};
-
-const FRASE_ANIMO = {
-  lluvia: "¡Está lloviendo! ☔ Saqué mi paraguas espacial.",
-  calor: "¡Uf, qué calor! 🥵 Hasta mi traje espacial suda.",
-  sed: "El suelo tiene sed… 💧 ¡Hay que regar!",
-};
+import { useIdioma } from "../i18n/IdiomaContext.jsx";
 
 // Hora de Colombia como número decimal (por ejemplo 14,5 = 2:30 p. m.)
 function horaColombia() {
@@ -22,6 +11,7 @@ function horaColombia() {
 // El sol (de día) y la luna (de noche) recorren el cielo siguiendo la hora real.
 // Si el pluviómetro acaba de registrar agua, llueve. `ambiente` hace reaccionar al astronauta.
 export default function Cielo({ luz, mensajes = [], ambiente, children }) {
+  const { t } = useIdioma();
   let fase = "noche";
   if (luz !== null && luz !== undefined) {
     if (luz >= 60) fase = "dia";
@@ -35,8 +25,8 @@ export default function Cielo({ luz, mensajes = [], ambiente, children }) {
 
   const animo = animoDe(ambiente);
   const lluvia = !!ambiente?.lluvia;
-  const primeras = [SALUDO[fase]];
-  if (FRASE_ANIMO[animo]) primeras.unshift(FRASE_ANIMO[animo]);
+  const primeras = [t("cielo." + (fase === "noche" ? "noche" : fase === "tarde" ? "tarde" : "dia"))];
+  if (animo !== "feliz") primeras.unshift(t("cielo." + animo));
 
   return (
     <header className={"cielo cielo-" + fase + (lluvia ? " cielo-lluvia" : "")}>
