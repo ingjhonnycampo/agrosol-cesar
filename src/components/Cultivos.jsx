@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { CULTIVOS, GRUPOS } from "../data/cultivos.js";
-import { CATALOGO, GRUPOS_MUNDO } from "../data/catalogoMundial.js";
+import { CULTIVOS_TODOS, GRUPOS } from "../data/cultivos.js";
+import { GRUPOS_MUNDO } from "../data/catalogoMundial.js";
 import { climaDesdeNasa, mejorMes, MESES } from "../lib/rotacion.js";
 import Fuentes from "./Fuentes.jsx";
 
@@ -9,7 +9,7 @@ const NIVEL = { alta: "Alta", media: "Media", baja: "Baja", sensible: "Sensible"
 const NOMBRE_GRUPO = { ...GRUPOS, ...GRUPOS_MUNDO };
 // quita tildes y mayúsculas para que "pina" encuentre "Piña"
 const limpiar = (s) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
-const TODOS = [...CULTIVOS, ...CATALOGO];
+const TODOS = CULTIVOS_TODOS;
 
 // Fichas de los cultivos del Cesar y del mundo, con buscador y la prueba "¿sirve en Bosconia?".
 export default function Cultivos({ modelo, ap, consulta }) {

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import Grafica from "./Grafica.jsx";
 import Fuentes from "./Fuentes.jsx";
-import { CULTIVOS } from "../data/cultivos.js";
+import OpcionesCultivos from "./OpcionesCultivos.jsx";
 import { MESES, climaDesdeNasa } from "../lib/rotacion.js";
 import { construirEstrategias } from "../lib/estrategias.js";
 
@@ -113,11 +113,11 @@ export default function Estrategias({ estacion, suelo, consulta, onConsulta, mod
           <div className="est-actual">
             <select value={actual[0]} onChange={(e) => setActual([e.target.value, actual[1]])} aria-label="Cultivo principal">
               <option value="">— elige —</option>
-              {CULTIVOS.filter((c) => !c.abono).map((c) => <option key={c.id} value={c.id}>{c.emoji} {c.nombre}</option>)}
+              <OpcionesCultivos filtro={(c) => !c.abono} />
             </select>
             <select value={actual[1]} onChange={(e) => setActual([actual[0], e.target.value])} aria-label="Segundo cultivo">
               <option value="">Y después, el mismo</option>
-              {CULTIVOS.filter((c) => !c.abono).map((c) => <option key={c.id} value={c.id}>Y después, {c.emoji} {c.nombre}</option>)}
+              <OpcionesCultivos filtro={(c) => !c.abono} prefijo="Y después, " />
             </select>
           </div>
         </div>

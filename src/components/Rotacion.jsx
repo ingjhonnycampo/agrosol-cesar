@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { CULTIVOS } from "../data/cultivos.js";
+import OpcionesCultivos from "./OpcionesCultivos.jsx";
 import { MESES, PRIORIDADES, RIESGOS, calendarioSiembra, climaDesdeNasa, recomendar } from "../lib/rotacion.js";
 import { aprenderDeLaEstacion } from "../lib/local.js";
 import { hayEstudio } from "../lib/suelo.js";
@@ -51,7 +51,7 @@ export default function Rotacion({ estacion, suelo, consulta, onConsulta, modelo
           <span>¿Qué se cultivó antes en el lote?</span>
           <select value={anterior} onChange={(e) => cambiar({ anterior: e.target.value })}>
             <option value="">Nada / no sé</option>
-            {CULTIVOS.map((c) => <option key={c.id} value={c.id}>{c.emoji} {c.nombre}</option>)}
+            <OpcionesCultivos />
           </select>
         </label>
         <label>

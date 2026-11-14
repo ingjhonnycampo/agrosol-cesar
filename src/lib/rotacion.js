@@ -8,7 +8,7 @@
 // 3. ROTACIÓN: lo que el cultivo anterior le hizo al suelo (familia, nitrógeno).
 // 4. SUELO: pH y sales del estudio de suelo.
 // 5. INTERESES del agricultor: agua, rapidez, suelo, mercado, riego disponible y tolerancia al riesgo.
-import { CULTIVOS, cultivoPorId } from "../data/cultivos.js";
+import { CULTIVOS_TODOS as CULTIVOS, cultivoPorId } from "../data/cultivos.js";
 import { aNumero } from "./suelo.js";
 
 export const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];

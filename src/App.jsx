@@ -19,6 +19,7 @@ import Reto from "./components/Reto.jsx";
 import Estrategias from "./components/Estrategias.jsx";
 import Glosario from "./components/Glosario.jsx";
 import Cobertura from "./components/Cobertura.jsx";
+import GotaMenu from "./components/GotaMenu.jsx";
 import Informe from "./components/Informe.jsx";
 import { useDatosModelo, CONSULTA_INICIAL } from "./lib/useModelo.js";
 import { descripcionPeriodo, urlNasa } from "./lib/climaCsv.js";
@@ -219,14 +220,8 @@ export default function App() {
 
         {u && (
           <section>
-            <nav className="pestanas" role="tablist">
-              {VISTAS.map((v) => (
-                <button key={v.id} type="button" role="tab" aria-selected={vista === v.id}
-                  className={"pestana" + (vista === v.id ? " on" : "")} onClick={() => setVista(v.id)}>
-                  <span aria-hidden="true">{v.icono}</span> {t("v." + v.id)}
-                </button>
-              ))}
-            </nav>
+            <GotaMenu vistas={VISTAS} vista={vista} onElegir={setVista} nombre={(id) => t("v." + id)} />
+            <p className="apartado-actual"><span aria-hidden="true">{(VISTAS.find((v) => v.id === vista) || VISTAS[0]).icono}</span> {t("v." + vista)}</p>
 
             {CON_FECHAS.includes(vista) && (
               <FiltroFechas

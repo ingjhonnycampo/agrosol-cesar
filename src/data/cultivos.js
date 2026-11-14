@@ -1,3 +1,5 @@
+import { CATALOGO } from "./catalogoMundial.js";
+
 // ===== AGROSOL · CULTIVOS DE REFERENCIA PARA EL CESAR =====
 // IMPORTANTE: los rangos de clima, agua, pH y ciclo son VALORES DE REFERENCIA GENERALES de agronomía
 // (del orden de lo que publican FAO y AGROSAVIA). No se pudieron verificar uno por uno contra la fuente
@@ -154,4 +156,8 @@ export const CULTIVOS = [
   },
 ];
 
-export const cultivoPorId = (id) => CULTIVOS.find((c) => c.id === id) || null;
+// Cultivos de todo el mundo (catálogo mundial): también entran al modelo de Rotación y Estrategias
+export const CULTIVOS_MUNDO = CATALOGO;
+export const CULTIVOS_TODOS = [...CULTIVOS, ...CATALOGO];
+
+export const cultivoPorId = (id) => CULTIVOS_TODOS.find((c) => c.id === id) || null;

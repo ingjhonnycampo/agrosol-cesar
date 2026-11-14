@@ -5,7 +5,7 @@
 //     eligiendo qué cultivo va cada mes para maximizar su objetivo, sin repetir familia y evitando el suelo desnudo.
 // Usa el clima de 25 años de la NASA (año por año), el ajuste con la estación, el estudio de suelo y las prioridades.
 // Todo es explicable: cada decisión sale de un dato que se puede mostrar.
-import { CULTIVOS, cultivoPorId } from "../data/cultivos.js";
+import { CULTIVOS_TODOS as CULTIVOS, cultivoPorId } from "../data/cultivos.js";
 import { MESES, climaDe, puntajeClima, evaluarSuelo, evaluarRotacion } from "./rotacion.js";
 
 const DIAS_MES = 30.4;

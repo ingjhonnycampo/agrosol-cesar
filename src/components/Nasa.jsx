@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Grafica from "./Grafica.jsx";
 import ValidarNasa from "./ValidarNasa.jsx";
+import Satelites from "./Satelites.jsx";
 import { coma, fechaCorta, hoyLocal, porDia } from "../lib/analisis.js";
 
 const MES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
@@ -177,6 +178,8 @@ export default function Nasa({ estacion, todas, rango, dias }) {
           <p className="ayuda">El mes actual está resaltado. Sirve para saber cuándo es época de lluvias y cuándo es seca al elegir cultivos.</p>
           <Grafica option={opClima} alto={300} />
           <ValidarNasa estacion={estacion} parametros="T2M,PRECTOTCORR,GWETTOP,GWETROOT" climatologia titulo="Validar el clima normal del año" />
+
+          <Satelites />
 
           <p className="calidad">
             Fuente: NASA POWER (MERRA-2 / satélites). La NASA publica los datos diarios con unos días de retraso, por eso los últimos días del rango pueden salir vacíos.
