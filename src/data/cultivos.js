@@ -49,6 +49,7 @@ export const GRUPOS = {
   hortaliza: "Hortalizas",
   fibra: "Fibra y semillas",
   musacea: "Plátano",
+  abono: "Abonos verdes",
 };
 
 // agua: mm por ciclo (lluvia + riego). ciclo: días. temp: media del ciclo, °C. ph.opt: ideal, ph.tol: tolera.
@@ -61,7 +62,7 @@ export const CULTIVOS = [
     nota: "Muy sensible a la falta de agua en la floración. Gasta mucho nitrógeno: va bien después de una leguminosa.",
   },
   {
-    id: "arroz", nombre: "Arroz (secano)", emoji: "🍚", grupo: "cereal", familia: "Poaceae (gramíneas)",
+    id: "arroz", nombre: "Arroz (secano)", emoji: "🍚", grupo: "cereal", familia: "Poaceae (gramíneas)", mecanizado: true,
     ciclo: [110, 140], temp: { opt: [22, 32], tol: [20, 35] }, agua: [800, 1500],
     ph: { opt: [5.5, 7.0], tol: [5.0, 7.5] }, suelo: "Arcilloso o franco-arcilloso, que retenga agua",
     exigenciaN: "alta", fijaN: false, sequia: "baja", sales: "sensible", mercado: 3, enCesar: "confirmado",
@@ -75,7 +76,7 @@ export const CULTIVOS = [
     nota: "Aguanta calor y sequía mejor que el maíz. Buena opción para temporadas secas.",
   },
   {
-    id: "algodon", nombre: "Algodón", emoji: "☁️", grupo: "fibra", familia: "Malvaceae",
+    id: "algodon", nombre: "Algodón", emoji: "☁️", grupo: "fibra", familia: "Malvaceae", mecanizado: true, cobertura: "baja",
     ciclo: [150, 180], temp: { opt: [22, 32], tol: [18, 36] }, agua: [700, 1300],
     ph: { opt: [6.0, 7.5], tol: [5.5, 8.0] }, suelo: "Franco a franco-arcilloso, profundo",
     exigenciaN: "media", fijaN: false, sequia: "media", sales: "tolerante", mercado: 2, enCesar: "confirmado",
@@ -89,7 +90,7 @@ export const CULTIVOS = [
     nota: "Resiste la sequía, pero se pudre si el suelo se encharca. Sirve en suelos pobres.",
   },
   {
-    id: "platano", nombre: "Plátano", emoji: "🍌", grupo: "musacea", familia: "Musaceae",
+    id: "platano", nombre: "Plátano", emoji: "🍌", grupo: "musacea", familia: "Musaceae", cobertura: "alta",
     ciclo: [300, 420], temp: { opt: [24, 30], tol: [20, 35] }, agua: [1200, 2200],
     ph: { opt: [5.5, 7.0], tol: [5.0, 7.5] }, suelo: "Franco, profundo y bien drenado",
     exigenciaN: "alta", fijaN: false, sequia: "baja", sales: "sensible", mercado: 4, enCesar: "confirmado",
@@ -103,7 +104,7 @@ export const CULTIVOS = [
     nota: "Típico del Caribe colombiano. Pide tutores y suelo suelto. No confirmado en las fuentes del Cesar consultadas.",
   },
   {
-    id: "ahuyama", nombre: "Ahuyama", emoji: "🎃", grupo: "cucurbitacea", familia: "Cucurbitaceae",
+    id: "ahuyama", nombre: "Ahuyama", emoji: "🎃", grupo: "cucurbitacea", familia: "Cucurbitaceae", cobertura: "alta",
     ciclo: [90, 120], temp: { opt: [20, 30], tol: [15, 35] }, agua: [400, 600],
     ph: { opt: [6.0, 7.0], tol: [5.5, 7.5] }, suelo: "Franco, rico en materia orgánica",
     exigenciaN: "media", fijaN: false, sequia: "media", sales: "media", mercado: 3, enCesar: "confirmado",
@@ -124,18 +125,32 @@ export const CULTIVOS = [
     nota: "Fija nitrógeno y deja el suelo mejor para el cultivo siguiente. Sufre con calor fuerte en la floración.",
   },
   {
-    id: "aji", nombre: "Ají", emoji: "🌶️", grupo: "hortaliza", familia: "Solanaceae",
+    id: "aji", nombre: "Ají", emoji: "🌶️", grupo: "hortaliza", familia: "Solanaceae", cobertura: "baja",
     ciclo: [120, 180], temp: { opt: [20, 30], tol: [15, 35] }, agua: [600, 900],
     ph: { opt: [6.0, 7.0], tol: [5.5, 7.5] }, suelo: "Franco, rico en materia orgánica, con drenaje",
     exigenciaN: "alta", fijaN: false, sequia: "baja", sales: "sensible", mercado: 5, enCesar: "por confirmar",
     nota: "Mejor con riego. No sembrar después de tomate, berenjena o papa (misma familia). No confirmado en las fuentes del Cesar.",
   },
   {
-    id: "ajonjoli", nombre: "Ajonjolí", emoji: "🌱", grupo: "fibra", familia: "Pedaliaceae",
+    id: "ajonjoli", nombre: "Ajonjolí", emoji: "🌱", grupo: "fibra", familia: "Pedaliaceae", cobertura: "baja",
     ciclo: [90, 110], temp: { opt: [25, 30], tol: [20, 35] }, agua: [300, 500],
     ph: { opt: [5.5, 7.5], tol: [5.0, 8.0] }, suelo: "Franco, bien drenado",
     exigenciaN: "baja", fijaN: false, sequia: "alta", sales: "media", mercado: 3, enCesar: "confirmado",
     nota: "Muy resistente a la sequía. Se cosecha en época seca; no aguanta encharcamiento.",
+  },
+  {
+    id: "canavalia", nombre: "Canavalia (abono verde)", emoji: "🌿", grupo: "abono", familia: "Fabaceae (leguminosas)", abono: true, cobertura: "alta",
+    ciclo: [90, 150], temp: { opt: [22, 30], tol: [18, 35] }, agua: [400, 800],
+    ph: { opt: [5.5, 7.5], tol: [5.0, 8.0] }, suelo: "Casi cualquier suelo; mejora los pobres",
+    exigenciaN: "baja", fijaN: true, sequia: "alta", sales: "media", mercado: 1, enCesar: "por confirmar",
+    nota: "Leguminosa rústica que se siembra para enterrarla o dejarla de cobertura: fija nitrógeno, tapa el suelo y aguanta la sequía. Valores por verificar con un agrónomo.",
+  },
+  {
+    id: "mucuna", nombre: "Mucuna (abono verde)", emoji: "🍃", grupo: "abono", familia: "Fabaceae (leguminosas)", abono: true, cobertura: "alta",
+    ciclo: [120, 180], temp: { opt: [22, 30], tol: [18, 34] }, agua: [600, 1000],
+    ph: { opt: [5.5, 7.0], tol: [5.0, 7.5] }, suelo: "Franco, bien drenado",
+    exigenciaN: "baja", fijaN: true, sequia: "media", sales: "sensible", mercado: 1, enCesar: "por confirmar",
+    nota: "Leguminosa trepadora de mucho follaje: tapa el suelo, frena las malezas y deja nitrógeno. Valores por verificar con un agrónomo.",
   },
 ];
 

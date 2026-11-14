@@ -24,7 +24,7 @@ export default {
   "tiempo.dias": "hace {d} días",
 
   // pestañas
-  "v.ahora": "Ahora", "v.graficas": "Gráficas", "v.dias": "Por día", "v.nasa": "NASA", "v.reto": "Reto", "v.rotacion": "Rotación",
+  "v.ahora": "Ahora", "v.graficas": "Gráficas", "v.dias": "Por día", "v.nasa": "NASA", "v.reto": "Reto", "v.estrategias": "Estrategias", "v.glosario": "¿Qué significa?", "v.rotacion": "Rotación",
   "v.cultivos": "Cultivos", "v.informe": "Informe", "v.suelo": "Suelo", "v.comparar": "Comparar", "v.calendario": "Calendario", "v.tabla": "Datos",
 
   // astronauta y cielo
@@ -170,4 +170,36 @@ export default {
   "intro.pista": "Toca el cohete 👆",
   "intro.sinSonido": "🔇 Toca la pantalla para activar el sonido",
   "intro.cohete": "Toca el cohete",
+
+  // estación interactiva
+  "como.tSuelo": "Temp. suelo",
+  "sen.toca": "👆 Toca un sensor del dibujo para ver qué mide y su dato de ahora",
+  "sen.mide": "Qué mide",
+  "sen.como": "Cómo funciona",
+  "sen.ahora": "Ahora",
+  "sen.pin": "Conexión",
+  "sen.viento.n": "Anemómetro (viento)",
+  "sen.viento.m": "La velocidad del viento en km/h.",
+  "sen.viento.c": "Tres copas giran con el viento y un sensor cuenta las vueltas por segundo; cada una equivale a 0,40 km/h. Con brisa muy suave casi no arranca.",
+  "sen.lluvia.n": "Pluviómetro",
+  "sen.lluvia.m": "Los milímetros de lluvia que caen.",
+  "sen.lluvia.c": "Un embudo de 10 cm llena una cucharita basculante; cada vez que se llena se voltea (0,51 mm) y el sensor cuenta un volteo. Los volteos falsos se descartan.",
+  "sen.temp.n": "Temperatura del aire",
+  "sen.temp.m": "Qué tan caliente está el aire.",
+  "sen.temp.c": "Usa el sensor interno de la micro:bit dentro de una caja ventilada. Como la caja se calienta con el sol, se corrige con una fórmula calibrada con Google Clima.",
+  "sen.luz.n": "Fotocelda (luz)",
+  "sen.luz.m": "La luz del sol, de 0 % (noche) a 100 % (pleno sol).",
+  "sen.luz.c": "Una resistencia que cambia con la luz. Sirve para saber si es de día y cuánta radiación llega al cultivo.",
+  "sen.hoja.n": "Sensor de mojado de hoja",
+  "sen.hoja.m": "Si la hoja está seca, con rocío o mojada.",
+  "sen.hoja.c": "Dos pistas metálicas conducen más cuando hay agua encima. Las horas seguidas con la hoja húmeda indican riesgo de hongos.",
+  "sen.suelo10.n": "Humedad del suelo a 10 cm",
+  "sen.suelo10.m": "El agua en la capa donde están las raíces jóvenes.",
+  "sen.suelo10.c": "Sensor resistivo: cuanta más agua hay en el suelo, mejor conduce entre sus dos puntas. Lo calibramos con el sensor seco al aire y metido en agua.",
+  "sen.suelo30.n": "Humedad del suelo a 30 cm",
+  "sen.suelo30.m": "La reserva de agua más profunda.",
+  "sen.suelo30.c": "Es el mismo tipo de sensor, enterrado más hondo. Si la capa de arriba se seca pero esta no, todavía hay reserva para las raíces.",
+  "sen.tsuelo.n": "Temperatura del suelo (LM35)",
+  "sen.tsuelo.m": "Qué tan caliente está el suelo.",
+  "sen.tsuelo.c": "Un sensor LM35 enterrado entrega un voltaje proporcional a la temperatura. Es el más confiable de la estación.",
 };

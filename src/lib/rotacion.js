@@ -251,3 +251,5 @@ export function climaDesdeNasa(nasa) {
   });
   return { tMes, lluviaMes };
 }
+
+export { climaDe, puntajeClima, evaluarSuelo, evaluarRotacion };

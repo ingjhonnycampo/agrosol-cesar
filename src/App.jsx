@@ -16,6 +16,8 @@ import Comparar from "./components/Comparar.jsx";
 import Nasa from "./components/Nasa.jsx";
 import Rotacion, { useRecomendacion } from "./components/Rotacion.jsx";
 import Reto from "./components/Reto.jsx";
+import Estrategias from "./components/Estrategias.jsx";
+import Glosario from "./components/Glosario.jsx";
 import Informe from "./components/Informe.jsx";
 import { useDatosModelo, CONSULTA_INICIAL } from "./lib/useModelo.js";
 import { descripcionPeriodo, urlNasa } from "./lib/climaCsv.js";
@@ -43,7 +45,9 @@ const VISTAS = [
   { id: "nasa", icono: "🛰️" },
   { id: "reto", icono: "🎯" },
   { id: "rotacion", icono: "🌱" },
+  { id: "estrategias", icono: "🔀" },
   { id: "cultivos", icono: "🌽" },
+  { id: "glosario", icono: "📖" },
   { id: "informe", icono: "📄" },
   { id: "suelo", icono: "🧪" },
   { id: "comparar", icono: "⚖️" },
@@ -150,7 +154,7 @@ export default function App() {
   const filasRango = useMemo(() => (todas ? filtrar(todas, rango.desde, rango.hasta) : []), [todas, rango.desde, rango.hasta]);
   const dias = useMemo(() => porDia(filasRango), [filasRango]);
   const diasTodos = useMemo(() => (todas ? porDia(todas) : []), [todas]);
-  const modelo = useDatosModelo(estacionId, diasTodos[0]?.dia, vista === "rotacion" || vista === "informe");
+  const modelo = useDatosModelo(estacionId, diasTodos[0]?.dia, vista === "rotacion" || vista === "informe" || vista === "estrategias");
   // período del clima histórico de la NASA que usa el modelo, y el enlace a esos mismos datos
   const climaInfo = modelo.hist
     ? { ...descripcionPeriodo(modelo.hist), urlCsv: urlNasa(estacion, { parametros: "T2M,T2M_MAX,T2M_MIN,PRECTOTCORR", desde: modelo.hist.inicio, hasta: modelo.hist.fin, formato: "CSV" }) }
@@ -254,7 +258,9 @@ export default function App() {
             {vista === "nasa" && <Nasa estacion={estacion} todas={todas} rango={rango} dias={dias} />}
             {vista === "reto" && <Reto estacion={estacion} diasEst={diasTodos} />}
             {vista === "rotacion" && <Rotacion estacion={estacion} suelo={suelo} consulta={consulta} onConsulta={setConsulta} modelo={modelo} ap={ap} resultados={resultados} climaInfo={climaInfo} />}
+            {vista === "estrategias" && <Estrategias estacion={estacion} suelo={suelo} consulta={consulta} onConsulta={setConsulta} modelo={modelo} ap={ap} />}
             {vista === "cultivos" && <Cultivos />}
+            {vista === "glosario" && <Glosario ap={ap} />}
             {vista === "informe" && <Informe estacion={estacion} diasEst={diasTodos} suelo={suelo} consulta={consulta} modelo={modelo} ap={ap} resultados={resultados} proyecto={proyecto} onProyecto={cambiarProyecto} climaInfo={climaInfo} />}
             {vista === "suelo" && <Suelo suelo={suelo} onCambiar={cambiarSuelo} estacion={estacion} />}
             {vista === "comparar" && <Comparar todas={todas} rango={rango} />}
@@ -262,7 +268,7 @@ export default function App() {
             {vista === "tabla" && <><ValidarEstacion estacion={estacion} /><Tabla filas={filasRango} /></>}
           </section>
         )}
-        <ComoFunciona />
+        <ComoFunciona u={u} res={res} />
       </main>
 
       {feria && u && (
