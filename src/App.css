@@ -736,3 +736,18 @@ footer { text-align: center; color: var(--mut); font-size: .85rem; padding: 24px
 .cob-tabla tbody th { background: #f4f9ef; }
 .cob-ideal th, .cob-ideal td { background: #fff4d6 !important; font-weight: 700; }
 .cob-pasos { margin: 6px 0 14px; padding-left: 20px; display: grid; gap: 6px; line-height: 1.45; }
+
+/* ---------- Buscador y catálogo mundial de cultivos ---------- */
+.cult-buscar { position: relative; display: flex; align-items: center; margin: 4px 0 10px; }
+.cult-lupa { position: absolute; left: 14px; font-size: 1.1rem; pointer-events: none; }
+.cult-buscar input { width: 100%; font: inherit; font-size: 1.05rem; padding: 12px 40px 12px 42px; border: 2px solid var(--borde); border-radius: 999px; background: var(--card); color: var(--tx); }
+.cult-buscar input:focus { outline: none; border-color: #3f9b52; box-shadow: 0 0 0 3px rgba(63,155,82,.2); }
+.cult-borrar { position: absolute; right: 8px; border: 0; background: #e8efe9; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-weight: 800; }
+.cult-cuenta { margin: 4px 0 8px; color: var(--mut); font-weight: 700; }
+.ficha-etiqueta.mundo { background: #e3effa; color: #1b5e87; }
+.cult-prueba { display: grid; gap: 3px; padding: 8px 10px; border-radius: 12px; font-size: .92rem; color: var(--tx); }
+.cult-prueba small { color: var(--mut); font-size: .75rem; }
+.cult-prueba.ok { background: #e1f5e6; }
+.cult-prueba.riego { background: #e3effa; }
+.cult-prueba.no { background: #fde6e3; }
+.cult-prueba.espera { background: #f1f3f1; }

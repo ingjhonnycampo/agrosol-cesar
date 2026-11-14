@@ -156,7 +156,7 @@ export default function App() {
   const filasRango = useMemo(() => (todas ? filtrar(todas, rango.desde, rango.hasta) : []), [todas, rango.desde, rango.hasta]);
   const dias = useMemo(() => porDia(filasRango), [filasRango]);
   const diasTodos = useMemo(() => (todas ? porDia(todas) : []), [todas]);
-  const modelo = useDatosModelo(estacionId, diasTodos[0]?.dia, vista === "rotacion" || vista === "informe" || vista === "estrategias");
+  const modelo = useDatosModelo(estacionId, diasTodos[0]?.dia, vista === "rotacion" || vista === "informe" || vista === "estrategias" || vista === "cultivos");
   // período del clima histórico de la NASA que usa el modelo, y el enlace a esos mismos datos
   const climaInfo = modelo.hist
     ? { ...descripcionPeriodo(modelo.hist), urlCsv: urlNasa(estacion, { parametros: "T2M,T2M_MAX,T2M_MIN,PRECTOTCORR", desde: modelo.hist.inicio, hasta: modelo.hist.fin, formato: "CSV" }) }
@@ -261,7 +261,7 @@ export default function App() {
             {vista === "reto" && <Reto estacion={estacion} diasEst={diasTodos} />}
             {vista === "rotacion" && <Rotacion estacion={estacion} suelo={suelo} consulta={consulta} onConsulta={setConsulta} modelo={modelo} ap={ap} resultados={resultados} climaInfo={climaInfo} />}
             {vista === "estrategias" && <Estrategias estacion={estacion} suelo={suelo} consulta={consulta} onConsulta={setConsulta} modelo={modelo} ap={ap} />}
-            {vista === "cultivos" && <Cultivos />}
+            {vista === "cultivos" && <Cultivos modelo={modelo} ap={ap} consulta={consulta} />}
             {vista === "cobertura" && <Cobertura />}
             {vista === "glosario" && <Glosario ap={ap} />}
             {vista === "informe" && <Informe estacion={estacion} diasEst={diasTodos} suelo={suelo} consulta={consulta} modelo={modelo} ap={ap} resultados={resultados} proyecto={proyecto} onProyecto={cambiarProyecto} climaInfo={climaInfo} />}
