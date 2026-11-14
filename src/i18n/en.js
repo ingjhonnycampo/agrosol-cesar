@@ -21,7 +21,7 @@ export default {
   "tiempo.horas": "{h} h {m} min ago",
   "tiempo.dias": "{d} days ago",
 
-  "v.ahora": "Now", "v.graficas": "Charts", "v.dias": "By day", "v.nasa": "NASA", "v.reto": "Challenge", "v.estrategias": "Strategies", "v.glosario": "What does it mean?", "v.cobertura": "Cover crops", "v.rotacion": "Rotation",
+  "v.ahora": "Now", "v.graficas": "Charts", "v.dias": "By day", "v.nasa": "NASA", "v.reto": "Challenge", "v.estrategias": "Strategies", "v.glosario": "What does it mean?", "v.cobertura": "Cover crops", "v.manual": "Manual", "v.rotacion": "Rotation",
   "v.cultivos": "Crops", "v.informe": "Report", "v.suelo": "Soil", "v.comparar": "Compare", "v.calendario": "Calendar", "v.tabla": "Data",
 
   "astro.aria": "Tap the astronaut",

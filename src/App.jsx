@@ -20,6 +20,7 @@ import Estrategias from "./components/Estrategias.jsx";
 import Glosario from "./components/Glosario.jsx";
 import Cobertura from "./components/Cobertura.jsx";
 import GotaMenu from "./components/GotaMenu.jsx";
+import Manual from "./components/Manual.jsx";
 import Informe from "./components/Informe.jsx";
 import { useDatosModelo, CONSULTA_INICIAL } from "./lib/useModelo.js";
 import { descripcionPeriodo, urlNasa } from "./lib/climaCsv.js";
@@ -56,6 +57,7 @@ const VISTAS = [
   { id: "comparar", icono: "⚖️" },
   { id: "calendario", icono: "🗓️" },
   { id: "tabla", icono: "📋" },
+  { id: "manual", icono: "📘" },
 ];
 
 export default function App() {
@@ -264,6 +266,7 @@ export default function App() {
             {vista === "estrategias" && <Estrategias estacion={estacion} suelo={suelo} consulta={consulta} onConsulta={setConsulta} modelo={modelo} ap={ap} />}
             {vista === "cultivos" && <Cultivos modelo={modelo} ap={ap} consulta={consulta} />}
             {vista === "cobertura" && <Cobertura />}
+            {vista === "manual" && <Manual />}
             {vista === "glosario" && <Glosario ap={ap} />}
             {vista === "informe" && <Informe estacion={estacion} diasEst={diasTodos} suelo={suelo} consulta={consulta} modelo={modelo} ap={ap} resultados={resultados} proyecto={proyecto} onProyecto={cambiarProyecto} climaInfo={climaInfo} />}
             {vista === "suelo" && <Suelo suelo={suelo} onCambiar={cambiarSuelo} estacion={estacion} />}

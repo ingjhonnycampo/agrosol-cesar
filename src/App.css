@@ -771,3 +771,19 @@ footer { text-align: center; color: var(--mut); font-size: .85rem; padding: 24px
 .gota-op.on { background: var(--verde); border-color: var(--verde); color: #fff; }
 @media (prefers-reduced-motion: reduce) { .gota { animation: none; } .gota-panel { animation: none; } }
 @media (max-width: 420px) { .gota-opciones { grid-template-columns: 1fr; } }
+
+/* ---------- Manual de uso ---------- */
+.man-pdf { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 0 0 14px; }
+.man-pdf a.boton { text-decoration: none; display: inline-block; }
+.man-pdf span { color: var(--mut); font-size: .92rem; }
+.man-indice { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 16px; }
+.man-indice a { text-decoration: none; font-weight: 700; font-size: .92rem; color: var(--tx); background: var(--card); border: 2px solid var(--borde); border-radius: 999px; padding: 6px 12px; }
+.man-indice a:hover { border-color: #3f9b52; }
+.man-seccion { scroll-margin-top: 12px; margin-bottom: 8px; }
+.man-p { margin: 8px 0; line-height: 1.5; }
+.man-lista { margin: 6px 0 12px; padding-left: 22px; display: grid; gap: 6px; line-height: 1.45; }
+.man-ficha { background: var(--card); border: 1px solid var(--borde); border-left: 5px solid #3f9b52; border-radius: 14px; padding: 4px 14px; margin: 8px 0; }
+.man-ficha summary { cursor: pointer; font-weight: 800; font-size: 1.05rem; padding: 8px 0; }
+.man-ficha p { margin: 6px 0 10px; line-height: 1.5; }
+.man-tip { background: #fff4d6; border-radius: 10px; padding: 6px 10px; }
+.manual code { background: #eef3ee; border-radius: 6px; padding: 1px 6px; font-size: .9em; }

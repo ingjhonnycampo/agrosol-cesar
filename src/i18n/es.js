@@ -24,7 +24,7 @@ export default {
   "tiempo.dias": "hace {d} días",
 
   // pestañas
-  "v.ahora": "Ahora", "v.graficas": "Gráficas", "v.dias": "Por día", "v.nasa": "NASA", "v.reto": "Reto", "v.estrategias": "Estrategias", "v.glosario": "¿Qué significa?", "v.cobertura": "Cobertura", "v.rotacion": "Rotación",
+  "v.ahora": "Ahora", "v.graficas": "Gráficas", "v.dias": "Por día", "v.nasa": "NASA", "v.reto": "Reto", "v.estrategias": "Estrategias", "v.glosario": "¿Qué significa?", "v.cobertura": "Cobertura", "v.manual": "Manual", "v.rotacion": "Rotación",
   "v.cultivos": "Cultivos", "v.informe": "Informe", "v.suelo": "Suelo", "v.comparar": "Comparar", "v.calendario": "Calendario", "v.tabla": "Datos",
 
   // astronauta y cielo

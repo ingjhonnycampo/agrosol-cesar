@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import Grafica from "./Grafica.jsx";
 import datos from "../data/earthdata.json";
 import sat from "../data/satelites.json";
+import mod from "../data/modis.json";
 
 const VERDE = "#2f9e4f";
 const AZUL = "#1b5e87";
@@ -24,7 +25,7 @@ const ultimo = (serie) => { for (let i = serie.length - 1; i >= 0; i--) if (seri
 // NDVI (MODIS) y humedad del suelo (SMAP) del punto de la estación, bajados de la NASA con una cuenta del equipo
 // (AppEEARS) y guardados en src/data/earthdata.json: quien visita la página no necesita ninguna cuenta.
 export default function Satelites() {
-  return <><Modis />{sat.disponible && <Imagenes />}</>;
+  return <><Modis />{mod.disponible && <Temperatura />}{sat.disponible && <Imagenes />}</>;
 }
 
 function Modis() {
@@ -108,27 +109,63 @@ function Imagenes() {
       tooltip: { trigger: "axis", valueFormatter: (v) => coma(v) },
       xAxis: { type: "time", axisLabel: { color: EJE, formatter: (v) => { const d = new Date(v); return String(d.getUTCMonth() + 1).padStart(2, "0") + "/" + String(d.getUTCFullYear()).slice(2); } } },
       yAxis: { type: "value", min: 0, max: 0.8, name: "NDVI", nameTextStyle: { color: EJE }, axisLabel: { color: EJE }, splitLine: REJA },
-      series: [serie("Landsat (30 m)", landsat, "#8e44ad", "diamond"), serie("Sentinel-2 (10 m)", sentinel2, "#16a085", "circle")],
+      series: [
+        ...(mod.disponible ? [serie("MODIS (250 m)", mod.ndvi, "#e8731a", "rect")] : []),
+        serie("Landsat (30 m)", landsat, "#8e44ad", "diamond"), serie("Sentinel-2 (10 m)", sentinel2, "#16a085", "circle"),
+      ],
     };
   }, [landsat, sentinel2]);
   const ul = ultimo(landsat.serie), us = ultimo(sentinel2.serie);
   return (
     <div>
-      <div className="titulo-seccion"><h2>🛰️ Más de cerca: Landsat y Sentinel-2</h2><p>NDVI con píxeles de 30 m y de 10 m</p></div>
+      <div className="titulo-seccion"><h2>🛰️ Tres satélites, un mismo punto: NDVI</h2><p>MODIS 250 m · Landsat 30 m · Sentinel-2 10 m</p></div>
       <div className="nasa-intro">
-        MODIS mira cuadros de 250 m. <b>Landsat</b> (NASA) mira de 30 m y <b>Sentinel-2</b> (ESA) de 10 m, así que ven el terreno de la estación con mucho más detalle.
+        <b>MODIS</b> (NASA) mira cuadros de 250 m. <b>Landsat</b> (NASA) mira de 30 m y <b>Sentinel-2</b> (ESA) de 10 m, así que ven el terreno de la estación con mucho más detalle.
         Se descartaron las fechas con nubes sobre el punto: de {landsat.escenas} imágenes de Landsat quedaron {landsat.serie.length}, y de {sentinel2.escenas} de Sentinel-2, {sentinel2.serie.length}.
       </div>
       <div className="kpis">
         {ul && <div className="kpi"><span className="kpi-icono">🛰️</span><span className="kpi-titulo">Landsat · {fechaLarga(ul[0])}</span><strong className="kpi-valor">{coma(ul[1])}</strong><span className="kpi-nota"><b>{leerNdvi(ul[1]).texto}</b></span></div>}
+        {mod.disponible && ultimo(mod.ndvi.serie) && <div className="kpi"><span className="kpi-icono">🛰️</span><span className="kpi-titulo">MODIS · {fechaLarga(ultimo(mod.ndvi.serie)[0])}</span><strong className="kpi-valor">{coma(ultimo(mod.ndvi.serie)[1])}</strong><span className="kpi-nota"><b>{leerNdvi(ultimo(mod.ndvi.serie)[1]).texto}</b></span></div>}
         {us && <div className="kpi"><span className="kpi-icono">🛰️</span><span className="kpi-titulo">Sentinel-2 · {fechaLarga(us[0])}</span><strong className="kpi-valor">{coma(us[1])}</strong><span className="kpi-nota"><b>{leerNdvi(us[1]).texto}</b></span></div>}
       </div>
       <Grafica option={opciones} alto={300} />
       <p className="ayuda">Los dos satélites no tienen que dar el mismo número: cada uno promedia un tamaño de píxel distinto (aquí, 3×3 píxeles alrededor del punto) y ve el terreno con otro ángulo y otra fecha. Si el lote es pequeño o tiene suelo descubierto, el de 10 m suele dar valores más bajos que el de 30 m. Lo importante es la tendencia: sube cuando hay cultivo o pasto verde y baja con el suelo seco.</p>
       <p className="calidad">
-        Fuente: Landsat Collection 2 Level-2 (NASA/USGS) y Sentinel-2 L2A (ESA/Copernicus), leídos del catálogo público de Microsoft Planetary Computer, sin cuenta.
+        Fuente: MODIS MOD13Q1/MYD13Q1 (NASA), Landsat Collection 2 Level-2 (NASA/USGS) y Sentinel-2 L2A (ESA/Copernicus), leídos del catálogo público de Microsoft Planetary Computer, sin cuenta.
         Periodo {fechaLarga(sat.periodo[0])} a {fechaLarga(sat.periodo[1])}. Datos guardados el {fechaLarga(sat.generado)}: no se actualizan solos.
       </p>
+    </div>
+  );
+}
+
+// Temperatura de la superficie (MODIS, 1 km): cómo se calienta el suelo, no el aire
+function Temperatura() {
+  const dia = mod.lstDia.serie, noche = mod.lstNoche.serie;
+  const ud = ultimo(dia), un = ultimo(noche);
+  const op = useMemo(() => ({
+    grid: { left: 46, right: 18, top: 34, bottom: 42 },
+    legend: { top: 0, textStyle: { color: EJE } },
+    tooltip: { trigger: "axis", valueFormatter: (v) => coma(v, 1) + " °C" },
+    xAxis: { type: "time", axisLabel: { color: EJE, formatter: (v) => { const d = new Date(v); return String(d.getUTCMonth() + 1).padStart(2, "0") + "/" + String(d.getUTCFullYear()).slice(2); } } },
+    yAxis: { type: "value", name: "°C", nameTextStyle: { color: EJE }, axisLabel: { color: EJE }, scale: true, splitLine: REJA },
+    series: [
+      { name: "Día", type: "line", showSymbol: false, smooth: true, data: dia, lineStyle: { width: 2.4, color: "#d9443a" }, itemStyle: { color: "#d9443a" } },
+      { name: "Noche", type: "line", showSymbol: false, smooth: true, data: noche, lineStyle: { width: 2.4, color: "#1b5e87" }, itemStyle: { color: "#1b5e87" } },
+    ],
+  }), [dia, noche]);
+  return (
+    <div>
+      <div className="titulo-seccion"><h2>🌡️ La temperatura del suelo vista desde el espacio</h2><p>MODIS, un valor cada 8 días</p></div>
+      <div className="nasa-intro">
+        MODIS también mide qué tan caliente está la <b>superficie</b> (el suelo y las hojas), de día y de noche, en cuadros de 1 km.
+        <b> No es la temperatura del aire:</b> de día el suelo se calienta mucho más que el aire, y por eso estos valores son más altos que los de la estación.
+      </div>
+      <div className="kpis">
+        {ud && <div className="kpi"><span className="kpi-icono">☀️</span><span className="kpi-titulo">Superficie de día ({fechaLarga(ud[0])})</span><strong className="kpi-valor">{coma(ud[1], 1)} °C</strong><span className="kpi-nota">Suelo y plantas al sol</span></div>}
+        {un && <div className="kpi"><span className="kpi-icono">🌙</span><span className="kpi-titulo">Superficie de noche ({fechaLarga(un[0])})</span><strong className="kpi-valor">{coma(un[1], 1)} °C</strong><span className="kpi-nota">Cuánto se enfría</span></div>}
+      </div>
+      <Grafica option={op} alto={300} />
+      <p className="calidad">Fuente: MODIS MOD11A2/MYD11A2 v061 (NASA), leído de Microsoft Planetary Computer sin cuenta. Los 8 días son un promedio de los días despejados; las fechas con nube se descartaron. Datos guardados el {fechaLarga(mod.generado)}.</p>
     </div>
   );
 }
