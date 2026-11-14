@@ -9,6 +9,11 @@ export const CONFIG = {
   corrNoche: 2.5,      // °C que el sensor marca de más de noche
   corrSol: 1.5,        // °C extra que marca a pleno sol (la caja se calienta)
   luzMax: 950,         // lectura de la fotocelda a pleno sol
+  // Con lluvia la caja de la micro:bit se enfría más que el aire y el sensor marca de menos.
+  // Comparando 14 días de la estación con el modelo del clima (Open-Meteo), en las horas con lluvia la estación marcó
+  // unos 2 °C por debajo de lo esperado para esa hora del día. Es una ESTIMACIÓN con pocos eventos: ponerla en 0 la apaga.
+  corrLluvia: 2.0,     // °C que se suman cuando está lloviendo (hoja mojada y lluvia en la última hora)
+  ventanaLluvia: 6,    // lecturas (una cada ~10 min = 1 hora) que se miran hacia atrás para saber si llovió
   mmPorVolteo: 0.51,   // calibrado: 100 mL = 25 volteos, embudo de 10 cm
   maxVolteos: 60,      // más de 60 volteos en 10 min es imposible (falso)
   volteosSinHoja: 10,  // 10 o más volteos con la hoja seca = sospechoso
@@ -132,12 +137,27 @@ function marcarPegados(filas, cfg) {
   for (const f of filas) { delete f._luz; delete f._hoja; }
 }
 
+// Con la hoja mojada Y lluvia en la última hora, la caja del sensor está fría: se suma corrLluvia a la temperatura.
+// (Solo hoja mojada no basta: el rocío de la madrugada también la moja y ahí no hay lluvia.)
+function corregirPorLluvia(filas, cfg) {
+  if (!cfg.corrLluvia) return;
+  filas.forEach((f, i) => {
+    if (f.temp === null || f.hojaEstado !== "mojada") return;
+    const desde = Math.max(0, i - cfg.ventanaLluvia + 1);
+    if (!filas.slice(desde, i + 1).some((x) => (x.lluviaMm || 0) > 0)) return;
+    f.tempSinLluvia = f.temp;
+    f.temp = r1(f.temp + cfg.corrLluvia);
+    f.avisos.push(`temperatura ajustada +${cfg.corrLluvia} °C por lluvia`);
+  });
+}
+
 export function procesar(feeds, cfg = CONFIG) {
   const filas = feeds
     .filter((f) => f && f.created_at)
     .map((f) => limpiarFila(f, cfg))
     .sort((a, b) => a.t.localeCompare(b.t));
   marcarPegados(filas, cfg);
+  corregirPorLluvia(filas, cfg);
 
   const ultimo = filas[filas.length - 1] || null;
   const hoy = ultimo ? diaLocal(ultimo.t, cfg) : null;
