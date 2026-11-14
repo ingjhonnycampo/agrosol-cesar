@@ -3,6 +3,10 @@ import OpcionesCultivos from "./OpcionesCultivos.jsx";
 import { MESES, PRIORIDADES, RIESGOS, calendarioSiembra, climaDesdeNasa, recomendar } from "../lib/rotacion.js";
 import { aprenderDeLaEstacion } from "../lib/local.js";
 import { hayEstudio } from "../lib/suelo.js";
+import Confianza from "./Confianza.jsx";
+import { resumenSatelite } from "../lib/satelite.js";
+
+const SAT = resumenSatelite();
 import Fuentes from "./Fuentes.jsx";
 import ValidarNasa from "./ValidarNasa.jsx";
 
@@ -20,7 +24,7 @@ export function useRecomendacion({ consulta, modelo, diasEst, suelo, humedadHoy 
   const resultados = useMemo(
     () => (clima ? recomendar({
       anterior: consulta.anterior, mesSiembra: consulta.mes, pesos: consulta.pesos, riego: consulta.riego, riesgo: consulta.riesgo,
-      hist: modelo.hist, clima, aprendizaje: ap, suelo, humedadHoy,
+      hist: modelo.hist, clima, aprendizaje: ap, suelo, humedadHoy, satelite: SAT,
     }) : []),
     [clima, modelo.hist, ap, consulta, suelo, humedadHoy],
   );
@@ -45,6 +49,7 @@ export default function Rotacion({ estacion, suelo, consulta, onConsulta, modelo
 
       <ValidarNasa estacion={estacion} parametros="T2M,T2M_MAX,T2M_MIN,PRECTOTCORR" desde={modelo.hist?.inicio} hasta={modelo.hist?.fin} titulo="Clima histórico que usa el modelo" />
       <Aprendizaje ap={ap} estacion={estacion} />
+      <Confianza ap={ap} modelo={modelo} suelo={suelo} />
 
       <div className="rot-form">
         <label>

@@ -4,6 +4,10 @@ import Fuentes from "./Fuentes.jsx";
 import OpcionesCultivos from "./OpcionesCultivos.jsx";
 import { MESES, climaDesdeNasa } from "../lib/rotacion.js";
 import { construirEstrategias } from "../lib/estrategias.js";
+import Confianza from "./Confianza.jsx";
+import { resumenSatelite } from "../lib/satelite.js";
+
+const SAT = resumenSatelite();
 
 const PALETA = ["#2e86ab", "#e8a317", "#3f9b52", "#9b59b6", "#e4572e", "#16a085"];
 const EJES = [["agua", "Agua"], ["suelo", "Suelo"], ["ingresos", "Ingresos"], ["seguridad", "Seguridad"], ["cobertura", "Cobertura"]];
@@ -64,8 +68,8 @@ export default function Estrategias({ estacion, suelo, consulta, onConsulta, mod
 
   const entrada = useMemo(() => (clima && modelo.hist ? {
     hist: modelo.hist, clima, aprendizaje: ap, suelo, riego: consulta.riego, riesgo: consulta.riesgo, maquinaria,
-    pesos: consulta.pesos, actual, anterior: consulta.anterior, periodo,
-  } : null), [clima, modelo.hist, ap, suelo, consulta, maquinaria, actual, periodo]);
+    pesos: consulta.pesos, actual, anterior: consulta.anterior, periodo, relieve: modelo.relieve, satelite: SAT,
+  } : null), [clima, modelo.hist, modelo.relieve, ap, suelo, consulta, maquinaria, actual, periodo]);
 
   const neutro = useMemo(() => (entrada ? construirEstrategias(entrada) : null), [entrada]);
   const hayEscenario = escenario.lluviaPct !== 0 || escenario.tempMas !== 0;
@@ -183,6 +187,7 @@ export default function Estrategias({ estacion, suelo, consulta, onConsulta, mod
 
       {res && mejor && (
         <>
+          <Confianza ap={ap} modelo={modelo} suelo={suelo} />
           <div className="est-veredicto" style={{ "--c": mejor.est.color }}>
             <span className="est-ver-icono" aria-hidden="true">{mejor.est.icono}</span>
             <div>

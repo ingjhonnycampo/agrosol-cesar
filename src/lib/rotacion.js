@@ -183,7 +183,7 @@ const f0 = (v) => Math.round(v).toLocaleString("es-CO");
 const f1 = (v) => (Math.round(v * 10) / 10).toString().replace(".", ",");
 
 // entrada: { anterior, mesSiembra, pesos, riego, riesgo, hist, clima, aprendizaje, suelo, humedadHoy }
-export function recomendar({ anterior, mesSiembra, pesos, riego = false, riesgo = "equilibrado", hist, clima, aprendizaje, suelo, humedadHoy = null }) {
+export function recomendar({ anterior, mesSiembra, pesos, riego = false, riesgo = "equilibrado", hist, clima, aprendizaje, suelo, humedadHoy = null, satelite = null }) {
   const ap = aprendizaje;
   const ant = anterior ? cultivoPorId(anterior) : null;
   const ctx = { hist, clima, ap, riego, riesgo };
@@ -196,10 +196,15 @@ export function recomendar({ anterior, mesSiembra, pesos, riego = false, riesgo 
     const ro = evaluarRotacion(c, ant);
     const pr = evaluarPrioridades(c, pesos);
     const tecnico = 0.4 * puntajeClima(cl, riesgo) + 0.3 * ro.puntaje + 0.3 * su.total;
-    const total = Math.round(0.65 * tecnico + 0.35 * pr.total);
+    // Si el satélite ve el lote casi descubierto ahora y se siembra este mes, los cultivos que tapan o abonan el suelo suman 4 puntos
+    const sinCobertura = !!satelite && !satelite.antiguo && mesSiembra === hoy && (satelite.nivel === "desnudo" || satelite.nivel === "escaso");
+    const tapa = sinCobertura && !!(c.abono || c.fijaN || c.cobertura === "alta");
+    const total = Math.min(100, Math.round(0.65 * tecnico + 0.35 * pr.total) + (tapa ? 4 : 0));
 
     const razones = [];
     razones.push({ tipo: ro.tipo, texto: ro.texto });
+    if (tapa) razones.push({ tipo: "bien", texto: `Hoy el satélite ve el lote con poca vegetación (NDVI ${(Math.round(satelite.ndviActual * 100) / 100).toString().replace(".", ",")}): este cultivo tapa o abona el suelo (+4 puntos).` });
+    else if (sinCobertura) razones.push({ tipo: "info", texto: "Hoy el satélite ve el lote con poca vegetación: antes de sembrar conviene preparar el suelo y protegerlo de la lluvia fuerte." });
 
     if (cl.anios) {
       const pc = Math.round(cl.exito * cl.anios);

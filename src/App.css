@@ -787,3 +787,15 @@ footer { text-align: center; color: var(--mut); font-size: .85rem; padding: 24px
 .man-ficha p { margin: 6px 0 10px; line-height: 1.5; }
 .man-tip { background: #fff4d6; border-radius: 10px; padding: 6px 10px; }
 .manual code { background: #eef3ee; border-radius: 6px; padding: 1px 6px; font-size: .9em; }
+
+/* ---------- Confianza de la recomendación ---------- */
+.confianza { background: var(--card); border: 1px solid var(--borde); border-left: 6px solid var(--c, #9aa5a0); border-radius: 16px; padding: 12px 16px; margin: 0 0 14px; display: grid; gap: 6px; }
+.conf-cabeza { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.conf-nivel { font-family: "Baloo 2", system-ui, sans-serif; font-weight: 800; font-size: 1.25rem; color: var(--c); }
+.conf-punt { font-weight: 800; color: var(--mut); }
+.conf-frase, .conf-sat, .conf-mejora, .conf-nota { margin: 0; line-height: 1.45; }
+.conf-sat { background: #eef7f0; border-radius: 10px; padding: 6px 10px; }
+.conf-detalle summary { cursor: pointer; font-weight: 800; color: #1b5e87; padding: 4px 0; }
+.conf-detalle ul { margin: 6px 0; padding-left: 4px; list-style: none; display: grid; gap: 6px; }
+.conf-mejora { background: #fff4d6; border-radius: 10px; padding: 6px 10px; margin-top: 6px; }
+.conf-nota { color: var(--mut); font-size: .85rem; margin-top: 6px; }

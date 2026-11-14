@@ -41,13 +41,19 @@ export const ESTRATEGIAS = [
 ];
 
 // ---------- contexto: caché del clima por cultivo y mes ----------
-function crearContexto({ hist, clima, aprendizaje, suelo, riego, riesgo, maquinaria, escenario }) {
+// Cuánto más pesa un mes sin cultivo con lluvia fuerte según la pendiente del terreno (en %)
+export function factorPendiente(p) {
+  if (p === null || p === undefined) return 1;
+  return p < 2 ? 1 : p < 5 ? 1.3 : p < 10 ? 1.7 : 2.2;
+}
+
+function crearContexto({ hist, clima, aprendizaje, suelo, riego, riesgo, maquinaria, escenario, relieve, satelite }) {
   const esc = escenario || { lluviaPct: 0, tempMas: 0 };
   const ap = { ...aprendizaje, factorLluvia: aprendizaje.factorLluvia * (1 + esc.lluviaPct / 100), tempAjuste: aprendizaje.tempAjuste + esc.tempMas };
   const cache = new Map();
   const lluviaMes = clima.lluviaMes.map((v) => v * ap.factorLluvia);
   return {
-    hist, clima, ap, suelo, riego, riesgo, maquinaria, lluviaMes,
+    hist, clima, ap, suelo, riego, riesgo, maquinaria, lluviaMes, relieve, satelite, pendienteFactor: factorPendiente(relieve?.pendiente),
     cl(c, m) {
       const k = c.id + ":" + m;
       if (!cache.has(k)) cache.set(k, climaDe(c, m, hist, clima, ap, riego));
@@ -76,7 +82,7 @@ function mejorRotacion(est, ctx, previoInicial) {
   const candidatos = CULTIVOS.filter((c) => (est.abonos ? true : !c.abono) && (ctx.maquinaria ? true : !c.mecanizado)
     && (!est.maxAgua || media(c.agua) <= est.maxAgua) && (!est.minMercado || c.mercado >= est.minMercado));
   const memo = new Map();
-  const costoDesnudo = (m) => est.bare * (1 + (ctx.lluviaMes[m] >= LLUVIA_FUERTE ? 0.8 : 0));
+  const costoDesnudo = (m) => est.bare * (1 + (ctx.lluviaMes[m] >= LLUVIA_FUERTE ? 0.8 * ctx.pendienteFactor : 0));
 
   function f(m, previoId) {
     if (m >= 12) return { v: 0, plan: [] };
@@ -152,7 +158,7 @@ function evaluar(est, slotsBase, ctx, anteriorId) {
   const ingresoBruto = slots.reduce((a, s) => a + (s.cultivo.mercado / 5) * (0.4 + 0.6 * (ctx.riego ? s.cl.pTemp : s.cl.exito)) * (s.meses / 6), 0);
   const metricas = {
     agua: Math.round(100 * (1 - limitar(riegoTotal / 1500, 0, 1))),
-    suelo: Math.round(limitar(35 + (hayLeg ? 25 : 0) + (hayAbono ? 15 : 0) + 25 * (1 - desnudos.length / 12) - (mono ? 20 : 0))),
+    suelo: Math.round(limitar(35 + (hayLeg ? 25 : 0) + (hayAbono ? 15 : 0) + 25 * (1 - desnudos.length / 12) - (mono ? 20 : 0) - desnudosErosion.length * (ctx.pendienteFactor - 1) * 5)),
     ingresos: Math.round(limitar((100 * ingresoBruto) / 1.2)),
     seguridad: Math.round(100 * exitoMedio),
     cobertura: Math.round(100 * (1 - desnudos.length / 12)),
@@ -190,6 +196,16 @@ function textos(e, ctx, ref, periodo, anios) {
     ? `Ajuste con tu estación: ${ref.dias} días comparados con la NASA (confianza ${ref.confianza}), temperatura ${ref.tempAjuste >= 0 ? "+" : ""}${ref.tempAjuste.toFixed(1)} °C y lluvia ×${ref.factorLluvia.toFixed(2)}.`
     : "Todavía no hay días de la estación para ajustar: se usa solo el clima de la NASA.");
 
+  const f2 = (v) => (Math.round(v * 100) / 100).toString().replace(".", ",");
+  if (ctx.satelite && ctx.satelite.ndviActual !== null) {
+    const palabra = { desnudo: "suelo casi desnudo", escaso: "poca vegetación", moderado: "vegetación moderada", denso: "vegetación densa" }[ctx.satelite.nivel];
+    evidencia.push(`Satélite: el NDVI del lote es ${f2(ctx.satelite.ndviActual)} (${palabra}) según MODIS, Landsat y Sentinel-2.`);
+  }
+  if (ctx.relieve) {
+    const p = ctx.relieve.pendiente;
+    evidencia.push(`Relieve (SRTM de la NASA): pendiente de ${p.toString().replace(".", ",")} %, ${p < 2 ? "terreno casi plano: la pendiente no agrega riesgo de erosión" : "la erosión de los meses sin cultivo con lluvia fuerte pesa " + ctx.pendienteFactor.toString().replace(".", ",") + " veces más"}.`);
+  }
+
   const beneficios = [];
   if (e.hayLeg) beneficios.push("Incluye una leguminosa: deja nitrógeno para el cultivo siguiente (en un ensayo con maíz equivalió a unos 60 kg de N por hectárea).");
   if (e.hayAbono) beneficios.push("Incluye un abono verde: tapa el suelo, frena las malezas y aporta materia orgánica.");
@@ -203,7 +219,9 @@ function textos(e, ctx, ref, periodo, anios) {
   if (!ctx.sueloConEstudio) vacios.push("No hay estudio de suelo cargado: no se pudo considerar el pH ni las sales.");
   vacios.push("Los rangos de agua, temperatura y pH de cada cultivo son valores de referencia generales, no medidos en Bosconia.");
   vacios.push("El valor de mercado es una estimación del equipo, no precios reales.");
-  vacios.push("No se mide evapotranspiración ni NDVI numérico en el lote; tampoco se conocen las plagas locales de cada ciclo.");
+  vacios.push(ctx.satelite
+    ? "No se mide la evapotranspiración en el lote, y el NDVI de satélite promedia cuadros de 10 a 250 m, no el lote exacto; tampoco se conocen las plagas locales de cada ciclo."
+    : "No se mide evapotranspiración ni NDVI numérico en el lote; tampoco se conocen las plagas locales de cada ciclo.");
 
   const riesgos = [];
   slots.filter((s) => (ctx.riego ? s.cl.pTemp : s.cl.exito) < 0.5).forEach((s) => riesgos.push(`${s.cultivo.nombre} en ${MESES[s.inicio]} solo habría salido bien en el ${Math.round((ctx.riego ? s.cl.pTemp : s.cl.exito) * 100)} % de los años: depende mucho de que llueva.`));
