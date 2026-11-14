@@ -685,3 +685,40 @@ footer { text-align: center; color: var(--mut); font-size: .85rem; padding: 24px
 .sen-pin { color: var(--mut); font-size: .8rem; }
 .sen-chips { justify-content: center; margin: 0; }
 .sen-chips .chip { padding: 3px 10px; }
+
+/* ---------- Estrategias: versión sencilla ---------- */
+.enfoques { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
+.enfoque { display: grid; justify-items: center; gap: 2px; font: inherit; font-weight: 800; font-size: .95rem; cursor: pointer; color: var(--tx); background: #fff; border: 2px solid var(--borde); border-radius: 16px; padding: 10px 8px; transition: transform .15s, border-color .2s, background .2s; }
+.enfoque span { font-size: 1.8rem; line-height: 1; }
+.enfoque:hover { transform: translateY(-2px); }
+.enfoque.on { background: var(--verde); border-color: var(--verde); color: #fff; }
+.est-avanzado { border-top: 1px dashed var(--borde); padding-top: 8px; }
+.est-avanzado summary { cursor: pointer; font-weight: 800; color: var(--mut); }
+.est-avanzado[open] summary { margin-bottom: 6px; }
+.est-veredicto { --c: #2e86ab; display: flex; gap: 14px; align-items: flex-start; background: var(--card); border: 2px solid var(--c); border-left-width: 8px; border-radius: 18px; padding: 14px 18px; margin: 10px 0 14px; box-shadow: 0 8px 22px rgba(40,70,40,.1); }
+.est-ver-icono { font-size: 3rem; line-height: 1; }
+.est-veredicto small { color: var(--mut); font-weight: 800; }
+.est-veredicto h2 { margin: 0; font-size: 1.8rem; color: var(--c); }
+.est-veredicto p { margin: 4px 0; font-size: 1.05rem; line-height: 1.35; }
+.est-frente { list-style: none; margin: 4px 0; padding: 0; display: grid; gap: 3px; font-size: .98rem; }
+.est-ojo { background: #fff4d6; border-radius: 10px; padding: 5px 10px; font-size: .92rem !important; }
+.est-frase { margin: 0; font-weight: 700; line-height: 1.35; }
+.est-preguntas { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.est-preguntas li { display: grid; grid-template-columns: 1fr auto; gap: 1px 10px; align-items: center; background: #f6faf2; border-radius: 10px; padding: 6px 10px; }
+.est-preguntas .q { font-size: .88rem; font-weight: 700; grid-column: 1; }
+.est-preguntas .pts { grid-column: 2; grid-row: 1; }
+.est-preguntas b { grid-column: 1 / -1; font-size: .85rem; }
+.pts { display: inline-flex; gap: 3px; }
+.pts i { width: 11px; height: 11px; border-radius: 50%; background: #dbe4d6; display: block; }
+.pts i.on { background: var(--c, #3f9b52); }
+.niv-alto { color: #1f9a4b; } .niv-medio { color: #b27a00; } .niv-bajo { color: #d9443a; }
+.est-vs { background: #eef6fb; border-radius: 10px; padding: 6px 10px; font-size: .88rem; }
+.est-vs ul { list-style: none; margin: 3px 0 0; padding: 0; display: grid; gap: 2px; }
+.est-meses > b { font-size: .88rem; }
+.est-detalle summary { cursor: pointer; font-weight: 800; }
+.est-sub h4 { margin: 8px 0 2px; font-size: .95rem; color: #1f5c30; }
+.est-sub ul { margin: 0 0 4px; padding-left: 18px; display: grid; gap: 4px; font-size: .88rem; line-height: 1.4; }
+.est-tecnico { background: var(--card); border: 1px dashed var(--borde); border-radius: 16px; padding: 8px 14px; margin: 6px 0 12px; }
+.est-tecnico summary { cursor: pointer; font-weight: 800; color: var(--mut); }
+.est-tecnico[open] summary { margin-bottom: 8px; }
+@media (max-width: 520px) { .est-veredicto { flex-direction: column; } .est-veredicto h2 { font-size: 1.5rem; } }
