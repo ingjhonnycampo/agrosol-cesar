@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { bloquearScroll } from "../lib/bloqueoScroll.js";
 import { useIdioma } from "../i18n/IdiomaContext.jsx";
 
 const REVISION = ["intro.rev1", "intro.rev2", "intro.rev3", "intro.rev4", "intro.rev5"];
@@ -28,9 +29,7 @@ export default function Intro({ listo, onTerminar, onSalir }) {
 
   // el cuerpo de la página no se desplaza mientras dura la intro
   useEffect(() => {
-    const antes = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = antes; };
+    return bloquearScroll();
   }, []);
 
   useEffect(() => {

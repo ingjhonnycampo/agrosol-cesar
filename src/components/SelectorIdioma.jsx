@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { IDIOMAS } from "../i18n/idiomas.js";
+import { bloquearScroll } from "../lib/bloqueoScroll.js";
 import { useIdioma } from "../i18n/IdiomaContext.jsx";
 
 const ESTRELLAS = Array.from({ length: 50 }, (_, i) => ({ x: (i * 53) % 100, y: (i * 37) % 100, s: 1 + (i % 3), d: (i % 9) * 0.35 }));
@@ -29,11 +30,10 @@ export default function SelectorIdioma({ onElegir, onCerrar }) {
   const { lang, setLang, t } = useIdioma();
 
   useEffect(() => {
-    const antes = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const liberar = bloquearScroll();
     const tecla = (e) => { if (e.key === "Escape" && onCerrar) onCerrar(); };
     window.addEventListener("keydown", tecla);
-    return () => { document.body.style.overflow = antes; window.removeEventListener("keydown", tecla); };
+    return () => { liberar(); window.removeEventListener("keydown", tecla); };
   }, [onCerrar]);
 
   return (
