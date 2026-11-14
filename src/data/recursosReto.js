@@ -8,6 +8,7 @@ export const URL_RETO = "https://www.spaceappschallenge.org/2026/challenges/adap
 export const ESTADOS = {
   vivo: { nombre: "Se lee en vivo aquí", color: "#2f9e4f" },
   usado: { nombre: "Ya lo usa el modelo", color: "#1b5e87" },
+  abierto: { nombre: "Abierto, sin cuenta (solo enlace)", color: "#16a085" },
   cuenta: { nombre: "Requiere cuenta gratuita", color: "#e8a317" },
   eeuu: { nombre: "Solo cubre EE. UU.", color: "#9aa5a0" },
 };
@@ -42,9 +43,9 @@ export const RECURSOS = [
     que: "Series continuas de temperatura, lluvia, humedad del suelo y evapotranspiración. GLDAS es global; NLDAS solo cubre EE. UU.",
     uso: "Se busca en Earthdata Search; requiere cuenta." },
   // ----- USDA y otras agencias de EE. UU. -----
-  { id: "agdc", nombre: "USDA Ag Data Commons", org: "USDA", estado: "cuenta", url: "https://agdatacommons.nal.usda.gov/",
+  { id: "agdc", nombre: "USDA Ag Data Commons", org: "USDA", estado: "abierto", url: "https://agdatacommons.nal.usda.gov/",
     que: "Conjuntos de datos abiertos de suelos, cultivos, clima y manejo agrícola.",
-    uso: "Abierto y gratuito, pero la mayoría son de EE. UU.; sirve como referencia metodológica.", alternativa: "Datos abiertos de Colombia (datos.gov.co)", altUrl: "https://www.datos.gov.co/" },
+    uso: "Repositorio abierto: se explora sin iniciar sesión. La mayoría de los datos son de EE. UU., así que sirve como referencia metodológica.", alternativa: "Datos abiertos de Colombia (datos.gov.co)", altUrl: "https://www.datos.gov.co/" },
   { id: "wss", nombre: "Web Soil Survey (WSS)", org: "USDA-NRCS", estado: "eeuu", url: "https://websoilsurvey.nrcs.usda.gov/",
     que: "Mapas de suelos de EE. UU.: textura, drenaje, materia orgánica y erosión.",
     uso: "No cubre Colombia.", alternativa: "Estudios de suelos del IGAC y análisis de laboratorio (pestaña Suelo)", altUrl: "https://www.igac.gov.co/" },
@@ -63,9 +64,9 @@ export const RECURSOS = [
   { id: "nlcd", nombre: "NLCD — cobertura del suelo", org: "USGS", estado: "eeuu", url: "https://www.mrlc.gov/",
     que: "Clasificación de cobertura y uso del suelo de EE. UU.",
     uso: "No cubre Colombia.", alternativa: "Mapa de cobertura de la tierra (Corine Land Cover) del IDEAM", altUrl: "https://www.ideam.gov.co/" },
-  { id: "gaez", nombre: "FAO GAEZ — aptitud agroecológica", org: "FAO", estado: "cuenta", url: "https://gaez.fao.org/",
+  { id: "gaez", nombre: "FAO GAEZ — aptitud agroecológica", org: "FAO", estado: "abierto", url: "https://gaez.fao.org/",
     que: "Mapas globales de qué tan apto es cada lugar para decenas de cultivos, con potencial de rendimiento.",
-    uso: "Es global y gratuito: sirve para contrastar nuestra tabla de cultivos con la de la FAO." },
+    uso: "Es global y gratuito: sirve para contrastar nuestra tabla de cultivos con la de la FAO. (No verificamos si alguna descarga pide registro.)" },
   { id: "cocorahs", nombre: "CoCoRaHS — lluvia colaborativa", org: "Colorado State University", estado: "eeuu", url: "https://www.cocorahs.org/",
     que: "Medidas diarias de lluvia hechas por voluntarios en Norteamérica.",
     uso: "No cubre Colombia: nuestro pluviómetro cumple esa función.", alternativa: "Pluviómetro de la estación e IDEAM", altUrl: "https://www.ideam.gov.co/" },

@@ -722,3 +722,17 @@ footer { text-align: center; color: var(--mut); font-size: .85rem; padding: 24px
 .est-tecnico summary { cursor: pointer; font-weight: 800; color: var(--mut); }
 .est-tecnico[open] summary { margin-bottom: 8px; }
 @media (max-width: 520px) { .est-veredicto { flex-direction: column; } .est-veredicto h2 { font-size: 1.5rem; } }
+
+/* ---------- Cobertura y fijadores de nitrógeno ---------- */
+.cob-conceptos { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; margin-bottom: 18px; }
+.cob-card { background: var(--card); border: 1px solid var(--borde); border-top: 5px solid #3f9b52; border-radius: 16px; padding: 12px 14px; display: grid; gap: 6px; align-content: start; box-shadow: 0 4px 14px rgba(40,70,40,.06); }
+.cob-icono { font-size: 2.2rem; line-height: 1; }
+.cob-card h3 { margin: 0; font-size: 1.2rem; }
+.cob-card p { margin: 0; font-size: .92rem; line-height: 1.42; }
+.cob-suelo { background: #f1f7ec; border-radius: 10px; padding: 6px 9px; }
+.cob-dibujo { background: var(--card); border: 1px solid var(--borde); border-radius: 16px; padding: 8px; margin-bottom: 16px; overflow: hidden; }
+.cob-dibujo svg { width: 100%; height: auto; display: block; border-radius: 10px; }
+.cob-tabla th, .cob-tabla td { white-space: normal; text-align: left; vertical-align: top; font-size: .9rem; }
+.cob-tabla tbody th { background: #f4f9ef; }
+.cob-ideal th, .cob-ideal td { background: #fff4d6 !important; font-weight: 700; }
+.cob-pasos { margin: 6px 0 14px; padding-left: 20px; display: grid; gap: 6px; line-height: 1.45; }
