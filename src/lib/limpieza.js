@@ -12,6 +12,12 @@ export const CONFIG = {
   // Con lluvia la caja de la micro:bit se enfría más que el aire y el sensor marca de menos.
   // Comparando 14 días de la estación con el modelo del clima (Open-Meteo), en las horas con lluvia la estación marcó
   // unos 2 °C por debajo de lo esperado para esa hora del día. Es una ESTIMACIÓN con pocos eventos: ponerla en 0 la apaga.
+  // Con sol fuerte la caja se calienta y el sensor marca de más. Comparando 10 días de la estación con el modelo del clima
+  // (Open-Meteo), entre las 8 y las 16 h marcó en promedio 1,3 °C por encima. Probando valores, 2,0 °C a mediodía es el que
+  // deja el error medio del día en cero. El ajuste quita hasta corrSolDia °C a mediodía, siguiendo la forma del sol del día
+  // (0 a las 6 y a las 18 h). Es una ESTIMACIÓN contra un modelo, no contra un termómetro de referencia: ponerla en 0 la apaga.
+  // Solo se aplica a los datos de la v3.8 en adelante. De noche la estación marca ~1,7 °C por debajo del modelo; eso NO se tocó.
+  corrSolDia: 2.0,
   corrLluvia: 2.0,     // °C que se suman cuando está lloviendo (hoja mojada y lluvia en la última hora)
   ventanaLluvia: 6,    // lecturas (una cada ~10 min = 1 hora) que se miran hacia atrás para saber si llovió
   mmPorVolteo: 0.51,   // calibrado: 100 mL = 25 volteos, embudo de 10 cm
@@ -57,10 +63,20 @@ export function estadoHoja(raw, cfg = CONFIG) {
   return "mojada";
 }
 
+// Cuánto sol hay (0 a 1): la forma del día entre las 6 y las 18 h, y menos si la fotocelda marca poca luz (nublado)
+function factorSol(t, luzRaw, cfg) {
+  const hora = (((t.getUTCHours() + t.getUTCMinutes() / 60 + cfg.zonaHoraria) % 24) + 24) % 24;
+  const s = Math.sin((Math.PI * (hora - 6)) / 12);
+  if (!(s > 0)) return 0;
+  const luzPct = luzRaw === null ? 100 : Math.min(100, (luzRaw / cfg.luzMax) * 100);
+  return Math.pow(s, 1.5) * (luzPct >= 90 ? 1 : luzPct / 90);
+}
+
 export function limpiarFila(f, cfg = CONFIG) {
   const t = new Date(f.created_at);
   const avisos = [];
   let temp = num(f.field1);
+  let tempSinSol = null; // lo que marcó el sensor antes del ajuste por sol (solo si hubo ajuste)
   const luzRaw = num(f.field2);
   const s10 = num(f.field3);
   const s30 = num(f.field4);
@@ -73,6 +89,10 @@ export function limpiarFila(f, cfg = CONFIG) {
   if (temp !== null && t < new Date(cfg.inicioV38)) {
     const cruda = temp + 9;
     temp = cruda - cfg.corrNoche - (cfg.corrSol * Math.min(luzRaw ?? 0, cfg.luzMax)) / cfg.luzMax;
+  } else if (temp !== null && cfg.corrSolDia) {
+    // datos nuevos (v3.8 en adelante): con sol fuerte la caja se calienta y marca de más
+    const quitar = cfg.corrSolDia * factorSol(t, luzRaw, cfg);
+    if (quitar >= 0.1) { tempSinSol = temp; temp -= quitar; }
   }
   if (temp !== null && (temp < 10 || temp > 50)) { avisos.push("temperatura imposible"); temp = null; }
 
@@ -89,6 +109,7 @@ export function limpiarFila(f, cfg = CONFIG) {
   return {
     t: t.toISOString(),
     temp: r1(temp),
+    ...(tempSinSol !== null ? { tempSinSol: r1(tempSinSol) } : {}),
     tsuelo: r1(tsuelo),
     suelo10: pctCal(s10, cfg.suelo10),
     suelo30: pctCal(s30, cfg.suelo30),
