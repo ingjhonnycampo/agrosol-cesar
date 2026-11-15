@@ -20,8 +20,6 @@ export const ESTACIONES = [
       { src: "/estaciones/colegio/Estacion2.jpeg", titulo: "La estación frente al muro del colegio" },
       { src: "/estaciones/colegio/Estacion1.jpeg", titulo: "La estación junto a la cancha, al atardecer" },
       { src: "/estaciones/colegio/estacion-1.jpg", titulo: "Ubicación georreferenciada de la estación", fecha: "3 de noviembre de 2026" },
-      { src: "/estaciones/colegio/estacion-vista-general-1.jpg", titulo: "La estación instalada en el patio, junto al muro" },
-      { src: "/estaciones/colegio/estacion-vista-general-2.jpg", titulo: "La estación en el patio, desde otro ángulo" },
       { src: "/estaciones/colegio/estacion-lateral-1.jpg", titulo: "Pluviómetro, anemómetro y caja blanca de sensores (vista lateral)" },
       { src: "/estaciones/colegio/estacion-lateral-2.jpg", titulo: "Pluviómetro, anemómetro y caja blanca de sensores (vista lateral 2)" },
       { src: "/estaciones/colegio/estacion-sensor-hoja.jpg", titulo: "Sensor de hoja mojada en su soporte amarillo" },
